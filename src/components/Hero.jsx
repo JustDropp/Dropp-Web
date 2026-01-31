@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Hero = () => {
+  const { theme } = useTheme();
   return (
     <section style={{
       minHeight: '90vh',
@@ -35,9 +37,10 @@ const Hero = () => {
             style={{
               display: 'inline-block',
               padding: '8px 16px',
-              background: 'rgba(0,0,0,0.03)',
+              background: theme === 'dark' ? 'rgb(255 255 255 / 7%)' : 'rgba(0,0,0,0.03)',
               borderRadius: '50px',
               marginBottom: 'var(--spacing-md)',
+              marginTop: 'var(--spacing-lg)',
               fontSize: '0.875rem',
               fontWeight: '500'
             }}
@@ -79,6 +82,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
+            className="hero-buttons"
             style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             <button

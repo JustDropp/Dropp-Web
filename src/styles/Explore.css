@@ -1,0 +1,234 @@
+/* Explore Page Styles */
+.explore-page {
+    min-height: 100vh;
+    padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.explore-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.explore-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.explore-search {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--backdrop-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+}
+
+.explore-search:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .explore-search:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.explore-search svg {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.explore-search input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+}
+
+.explore-search input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+/* Featured Collection */
+.featured-collection {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    margin-bottom: var(--spacing-xl);
+    height: 400px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.featured-collection img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.featured-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.6) 40%,
+            rgba(0, 0, 0, 0.2) 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--spacing-lg);
+}
+
+.featured-content {
+    color: white;
+    max-width: 600px;
+}
+
+.featured-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.featured-content h2 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+
+.featured-content p {
+    font-size: 1.125rem;
+    margin: 0 0 var(--spacing-md) 0;
+    opacity: 0.9;
+}
+
+.explore-collection-btn {
+    padding: 0.875rem 1.75rem;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-sans);
+}
+
+.explore-collection-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.explore-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .explore-page {
+        padding: var(--spacing-md);
+    }
+
+    .featured-collection {
+        height: 350px;
+    }
+
+    .featured-content h2 {
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .explore-page {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .explore-title {
+        font-size: 2rem;
+    }
+
+    .featured-collection {
+        height: 300px;
+    }
+
+    .featured-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .featured-content p {
+        font-size: 1rem;
+    }
+
+    .featured-overlay {
+        padding: var(--spacing-md);
+    }
+
+    .explore-search {
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .explore-page {
+        padding: var(--spacing-sm);
+    }
+
+    .explore-title {
+        font-size: 1.75rem;
+    }
+
+    .featured-collection {
+        height: 250px;
+        border-radius: var(--radius-lg);
+    }
+
+    .featured-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .featured-content p {
+        font-size: 0.9375rem;
+    }
+
+    .featured-overlay {
+        padding: var(--spacing-sm);
+    }
+
+    .explore-collection-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9375rem;
+    }
+
+    .explore-search {
+        padding: 0.625rem 0.875rem;
+    }
+
+    .explore-search input {
+        font-size: 0.9375rem;
+    }
+}

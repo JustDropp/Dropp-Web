@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     font-family: var(--font-sans);
     background-color: var(--bg-primary);
@@ -14,6 +19,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--transition-medium), color var(--transition-medium);
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
 }
 
 h1,
@@ -45,10 +53,62 @@ img {
     display: block;
 }
 
+/* App Container */
+.app {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 0;
+    /* Changed from 240px - only add margin when sidebar exists */
+    transition: margin-left var(--transition-medium);
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Only add margin when sidebar EXISTS and is expanded */
+.app:has(.sidebar.expanded) .app-content {
+    margin-left: 240px;
+}
+
+/* When sidebar exists and is collapsed */
+.app:has(.sidebar.collapsed) .app-content {
+    margin-left: 72px;
+}
+
+/* Mobile: No margin but add bottom padding for nav */
+@media (max-width: 768px) {
+    .app-content {
+        margin-left: 0;
+        padding-bottom: 70px;
+        /* Height of bottom nav */
+    }
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+
+    /* On mobile, sidebar doesn't affect content margin */
+    .app:has(.sidebar) .app-content {
+        margin-left: 0;
+    }
+}
+
+
 .container {
     max-width: var(--container-width);
     margin: 0 auto;
     padding: 0 var(--spacing-sm);
+    width: 100%;
 }
 
 .btn {
@@ -97,6 +157,25 @@ img {
 
 .justify-between {
     justify-content: space-between;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9375rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 var(--spacing-xs);
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
 }
 
 .gap-sm {

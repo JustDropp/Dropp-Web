@@ -1,0 +1,126 @@
+/* Home Page Styles */
+.home-page {
+    min-height: 100vh;
+    padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.home-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+}
+
+.home-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.home-subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Category Filters */
+.category-filters {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: var(--spacing-lg);
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.category-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.category-pill {
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-xl);
+    border: 1.5px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    font-family: var(--font-sans);
+}
+
+.category-pill:hover {
+    border-color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.category-pill.active {
+    background: var(--accent-color);
+    color: var(--accent-text);
+    border-color: var(--accent-color);
+}
+
+.home-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .home-page {
+        padding: var(--spacing-md);
+    }
+
+    .home-title {
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-title {
+        font-size: 2rem;
+    }
+
+    .home-subtitle {
+        font-size: 1rem;
+    }
+
+    .home-page {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .category-filters {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+    }
+
+    .category-pill {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-page {
+        padding: var(--spacing-sm);
+    }
+
+    .home-title {
+        font-size: 1.75rem;
+    }
+
+    .home-subtitle {
+        font-size: 0.9375rem;
+    }
+
+    .category-filters {
+        gap: 0.5rem;
+    }
+}

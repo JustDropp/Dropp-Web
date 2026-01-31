@@ -1,14 +1,17 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Sun, Moon, Menu, X, User, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/index.css';
 
 const Header = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
+    const { isAuthenticated, user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [showUserMenu, setShowUserMenu] = React.useState(false);
 
     const isActive = (path) => location.pathname === path;
 
@@ -34,8 +37,10 @@ const Header = () => {
     return (
         <header className="glass-panel" style={{
             height: 'var(--header-height)',
-            position: 'sticky',
+            position: 'fixed',
             top: 0,
+            left: 0,
+            width: '100%',
             zIndex: 1000,
             borderBottom: '1px solid var(--glass-border)'
         }}>
@@ -69,9 +74,72 @@ const Header = () => {
                         {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
 
-                    <button className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.9rem' }} onClick={handleJoinWaitlist}>
-                        Join Waitlist
-                    </button>
+                    {isAuthenticated ? (
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '8px',
+                                    color: 'var(--text-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}
+                            >
+                                <User size={20} />
+                                {user?.username || user?.email}
+                            </button>
+                            {showUserMenu && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    right: 0,
+                                    marginTop: '0.5rem',
+                                    background: 'var(--bg-secondary)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: '8px',
+                                    padding: '0.5rem',
+                                    minWidth: '150px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                }}>
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            setShowUserMenu(false);
+                                            navigate('/');
+                                        }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            width: '100%',
+                                            padding: '0.5rem',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: 'var(--text-primary)',
+                                            borderRadius: '4px'
+                                        }}
+                                    >
+                                        <LogOut size={16} />
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            <Link to="/login" className="btn" style={{ padding: '8px 20px', fontSize: '0.9rem', textDecoration: 'none' }}>
+                                Login
+                            </Link>
+                            <Link to="/signup" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.9rem', textDecoration: 'none' }}>
+                                Sign Up
+                            </Link>
+                        </>
+                    )}
                 </nav>
 
                 {/* Mobile Menu Button */}
@@ -117,9 +185,35 @@ const Header = () => {
                             </button>
                         </div>
 
-                        <button className="btn btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem', width: '100%' }} onClick={handleJoinWaitlist}>
-                            Join Waitlist
-                        </button>
+                        {isAuthenticated ? (
+                            <>
+                                <div style={{ fontSize: '1.2rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <User size={24} />
+                                    {user?.username || user?.email}
+                                </div>
+                                <button
+                                    className="btn btn-primary"
+                                    style={{ padding: '12px 32px', fontSize: '1.1rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    onClick={() => {
+                                        logout();
+                                        setIsMenuOpen(false);
+                                        navigate('/');
+                                    }}
+                                >
+                                    <LogOut size={20} />
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login" className="btn" style={{ padding: '12px 32px', fontSize: '1.1rem', width: '100%', textAlign: 'center', textDecoration: 'none' }}>
+                                    Login
+                                </Link>
+                                <Link to="/signup" className="btn btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem', width: '100%', textAlign: 'center', textDecoration: 'none' }}>
+                                    Sign Up
+                                </Link>
+                            </>
+                        )}
                     </div>
                 )}
             </div>

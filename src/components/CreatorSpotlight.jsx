@@ -32,7 +32,7 @@ const CreatorSpotlight = () => {
                         </Link>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-lg)', alignItems: 'center' }}>
+                    <div className="creator-spotlight-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-lg)', alignItems: 'center' }}>
 
                         {/* Creator List */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
