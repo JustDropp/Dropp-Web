@@ -1,8 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
-    // Using Vite proxy to avoid CORS issues in development
-    // Proxy configured in vite.config.js
-    BASE_URL: 'https://63ztvgg2-8000.inc1.devtunnels.ms',
+    // Using Vite proxy in dev, direct URL in prod
+    BASE_URL: import.meta.env.VITE_API_BASE_URL,
     ENDPOINTS: {
         LOGIN: '/user/login',
         SIGNUP: '/user/signup',
