@@ -1,6 +1,7 @@
 {
   "name": "dropp-web",
   "private": true,
+  "homepage": "https://JustDropp.github.io/Dropp-Web/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
