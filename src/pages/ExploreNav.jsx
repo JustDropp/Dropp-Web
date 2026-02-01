@@ -21,7 +21,7 @@ const Explore = () => {
         >
             <div className="container">
                 <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
-                    <h1 className="text-gradient" style={{ fontSize: '3rem', marginBottom: 'var(--spacing-sm)' }}>Explore Collections</h1>
+                    <h1 className="text-gradient" style={{ fontSize: '3rem', marginBottom: 'var(--spacing-sm)',  marginTop: 'var(--spacing-lg)' }}>Explore Collections</h1>
                     <p style={{ color: 'var(--text-secondary)' }}>Discover what's trending in the community.</p>
                 </div>
 

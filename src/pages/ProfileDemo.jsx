@@ -22,7 +22,8 @@ const ProfileDemo = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     textAlign: 'center',
-                    marginBottom: 'var(--spacing-xl)'
+                    marginBottom: 'var(--spacing-xl)',
+                    marginTop: 'var(--spacing-lg)'
                 }}>
                     <motion.img
                         initial={{ scale: 0.8, opacity: 0 }}
