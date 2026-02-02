@@ -5,6 +5,7 @@ export const API_CONFIG = {
     ENDPOINTS: {
         LOGIN: '/user/login',
         SIGNUP: '/user/signup',
+        PROFILE: '/user/profile/',
     },
     TIMEOUT: 10000,
 };
