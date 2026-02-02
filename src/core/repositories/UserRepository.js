@@ -18,6 +18,24 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Update user profile
+     * @param {FormData} formData - Profile update data
+     * @returns {Promise<UserProfile>}
+     */
+    async updateProfile(formData) {
+        try {
+            const response = await apiClient.patch(API_CONFIG.ENDPOINTS.PROFILE, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return UserProfile.fromJSON(response.data);
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

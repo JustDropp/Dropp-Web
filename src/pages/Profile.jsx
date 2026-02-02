@@ -6,12 +6,17 @@ import ProfileTabs from '../components/ProfileTabs';
 import UserService from '../core/services/UserService';
 import '../styles/Profile.css';
 import apiClient from '../core/config/apiClient';
+import { API_CONFIG } from '../core/config/apiConfig';
+
+import EditProfileModal from '../components/EditProfileModal';
+import { AnimatePresence } from 'framer-motion';
 
 const Profile = () => {
     const { username } = useParams();
     const [user, setUser] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
     React.useEffect(() => {
         const fetchProfile = async () => {
@@ -45,21 +50,29 @@ const Profile = () => {
         // TODO: Implement messaging
     };
 
+    const handleUpdateProfile = (updatedUser) => {
+        console.log("Updated user received:", updatedUser);
+        if (updatedUser) {
+            setUser(updatedUser);
+        } else {
+            console.error("Received null or undefined user after update");
+        }
+    };
+
     if (loading) return <div className="profile-loading">Loading...</div>;
     if (error) return <div className="profile-error">{error}</div>;
+    // Keep showing profile even if "user" is temporarily unstable, handled by conditional chaining below
     if (!user) return <div className="profile-not-found">User not found</div>;
 
     // Adapt user data for ProfileHeader
     const adaptedUser = {
         ...user,
-        avatar: user.profileImageUrl,
+        avatar: user.profileImageUrl ? (user.profileImageUrl.startsWith('http') ? user.profileImageUrl : API_CONFIG.BASE_URL + user.profileImageUrl) : null,
         stats: {
-            followers: user.followers,
-            following: user.following,
+            followers: user.followers || 0,
+            following: user.following || 0,
             collections: user.collections ? user.collections.length : 0
-        },
-        location: user.location || '',
-        website: user.website || ''
+        }
     };
 
     return (
@@ -76,12 +89,23 @@ const Profile = () => {
                     isOwnProfile={true} // converting simple boolean for now as auth check logic is separate
                     onFollow={handleFollow}
                     onMessage={handleMessage}
+                    onEditProfile={() => setIsEditModalOpen(true)}
                 />
 
                 <ProfileTabs
                     collections={user.collections || []}
                     activeTab="collections"
                 />
+
+                <AnimatePresence>
+                    {isEditModalOpen && (
+                        <EditProfileModal
+                            user={user}
+                            onClose={() => setIsEditModalOpen(false)}
+                            onUpdate={handleUpdateProfile}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         </motion.div>
     );

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { User, MessageCircle, MoreHorizontal, MapPin, Link as LinkIcon } from 'lucide-react';
 import '../styles/Profile.css';
 
-const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage }) => {
+const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage, onEditProfile }) => {
     const [showOptions, setShowOptions] = useState(false);
-    const { avatar, fullName, username, bio, location, website, stats, isFollowing } = user;
+    const { avatar, fullName, username, bio, location, link, pronoun, stats, isFollowing } = user;
 
     const handleFollow = () => {
         if (onFollow) onFollow();
@@ -51,7 +51,10 @@ const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage }) => {
                             )}
 
                             {isOwnProfile && (
-                                <button className="profile-edit-btn">
+                                <button
+                                    className="profile-edit-btn"
+                                    onClick={onEditProfile}
+                                >
                                     Edit Profile
                                 </button>
                             )}
@@ -94,23 +97,24 @@ const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage }) => {
                     </div>
 
                     <div className="profile-bio">
-                        <p className="profile-fullname">{fullName}</p>
-                        <p className="profile-bio-text">{bio}</p>
+                        {fullName && <p className="profile-fullname">{fullName}</p>}
+                        {pronoun && <p className="profile-pronoun" style={{ fontSize: '0.9em', color: '#888', marginTop: '4px' }}>{pronoun}</p>}
+                        {bio && <p className="profile-bio-text">{bio}</p>}
                         {location && (
                             <p className="profile-location">
                                 <MapPin size={14} />
                                 {location}
                             </p>
                         )}
-                        {website && (
+                        {link && (
                             <a
-                                href={website}
+                                href={link.startsWith('http') ? link : `https://${link}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="profile-website"
                             >
                                 <LinkIcon size={14} />
-                                {website.replace('https://', '')}
+                                {link.replace(/^https?:\/\//, '')}
                             </a>
                         )}
                     </div>

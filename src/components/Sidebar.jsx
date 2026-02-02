@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     Home,
     Compass,
@@ -20,6 +20,7 @@ import '../styles/Sidebar.css';
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
     const location = useLocation();
+    const navigate = useNavigate();
     const { isAuthenticated, user, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
 
@@ -45,6 +46,7 @@ const Sidebar = () => {
 
     const handleLogout = () => {
         logout();
+        navigate('/');
     };
 
     const toggleSidebar = () => {
