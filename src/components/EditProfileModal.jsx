@@ -197,7 +197,7 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
 
             // Handle Image
             if (profileImageFile) {
-                data.append('profileImageUrl', profileImageFile);
+                data.append('image', profileImageFile);
             }
 
             const updatedUser = await UserService.updateProfile(data);
