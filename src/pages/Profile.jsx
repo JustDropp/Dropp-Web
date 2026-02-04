@@ -50,12 +50,18 @@ const Profile = () => {
         // TODO: Implement messaging
     };
 
-    const handleUpdateProfile = (updatedUser) => {
-        console.log("Updated user received:", updatedUser);
-        if (updatedUser) {
-            setUser(updatedUser);
-        } else {
-            console.error("Received null or undefined user after update");
+    const handleUpdateProfile = async (updatedUser) => {
+        console.log("Profile updated, refreshing data...");
+        // Re-fetch the profile to ensure we have the absolute latest data from server
+        try {
+            // We can use the existing user data or params to know which profile to fetch, 
+            // but usually after edit it is the own profile.
+            const profileData = await UserService.getUserProfile();
+            setUser(profileData);
+        } catch (err) {
+            console.error("Failed to refresh profile:", err);
+            // Fallback to the local update if fetch fails, to show some progress at least
+            if (updatedUser) setUser(updatedUser);
         }
     };
 

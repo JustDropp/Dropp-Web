@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Check, Circle, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
 
@@ -19,6 +20,26 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Password Strength State
+    const [passwordCriteria, setPasswordCriteria] = useState({
+        length: false,
+        upper: false,
+        number: false,
+        special: false
+    });
+
+    useEffect(() => {
+        const pass = formData.password;
+        setPasswordCriteria({
+            length: pass.length >= 8,
+            upper: /[A-Z]/.test(pass),
+            number: /[0-9]/.test(pass),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(pass)
+        });
+    }, [formData.password]);
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -65,10 +86,11 @@ const Signup = () => {
             return 'Passwords do not match';
         }
 
-        // Password strength (minimum 4 characters as per API example)
-        if (formData.password.length < 4) {
-            return 'Password must be at least 4 characters';
-        }
+        // Strict Password Validation
+        if (!passwordCriteria.length) return 'Password must be at least 8 characters';
+        if (!passwordCriteria.upper) return 'Password must contain at least one uppercase letter';
+        if (!passwordCriteria.number) return 'Password must contain at least one number';
+        if (!passwordCriteria.special) return 'Password must contain at least one special character';
 
         // Phone validation
         const phoneRegex = /^\+?[\d\s-()]+$/;
@@ -104,10 +126,14 @@ const Signup = () => {
                     navigate('/login');
                 }, 2000);
             } else {
-                setError(result.error);
+                if (result.error && result.error.toLowerCase().includes('exist')) {
+                    setError('User exists please sign in');
+                } else {
+                    setError(result.error);
+                }
             }
         } catch (err) {
-            setError('An unexpected error occurred');
+            setError(err.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
@@ -181,30 +207,92 @@ const Signup = () => {
                     <div className="form-row">
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                disabled={loading}
-                                autoComplete="new-password"
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    disabled={loading}
+                                    autoComplete="new-password"
+                                    style={{ width: '100%' }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '12px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#666',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: 0
+                                    }}
+                                >
+                                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="confirmPassword">Confirm Password</label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                disabled={loading}
-                                autoComplete="new-password"
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    disabled={loading}
+                                    autoComplete="new-password"
+                                    style={{ width: '100%' }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '12px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#666',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: 0
+                                    }}
+                                >
+                                    {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Password Strength Indicators */}
+                    {/* Modern Modern Password Strength UI */}
+                    <div className="password-strength-container">
+                        <div className="strength-bar-container">
+                            <div className={`strength-bar-segment ${passwordCriteria.length ? 'filled' : ''}`}></div>
+                            <div className={`strength-bar-segment ${passwordCriteria.upper ? 'filled' : ''}`}></div>
+                            <div className={`strength-bar-segment ${passwordCriteria.number ? 'filled' : ''}`}></div>
+                            <div className={`strength-bar-segment ${passwordCriteria.special ? 'filled' : ''}`}></div>
+                        </div>
+
+                        <div className="strength-labels">
+                            <span className={`strength-pill ${passwordCriteria.length ? 'met' : ''}`}>8+ Chars</span>
+                            <span className={`strength-pill ${passwordCriteria.upper ? 'met' : ''}`}>Uppercase</span>
+                            <span className={`strength-pill ${passwordCriteria.number ? 'met' : ''}`}>Number</span>
+                            <span className={`strength-pill ${passwordCriteria.special ? 'met' : ''}`}>Special</span>
                         </div>
                     </div>
 
@@ -258,8 +346,8 @@ const Signup = () => {
                         </p>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

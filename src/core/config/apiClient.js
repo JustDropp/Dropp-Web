@@ -34,7 +34,7 @@ apiClient.interceptors.response.use(
             // Server responded with error status
             const { status, data } = error.response;
 
-            if (status === 401) {
+            if (status === 401 && !error.config.url.includes('/login')) {
                 // Unauthorized - clear token and redirect to login
                 localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
                 localStorage.removeItem(STORAGE_KEYS.USER_DATA);
@@ -42,7 +42,7 @@ apiClient.interceptors.response.use(
             }
 
             return Promise.reject({
-                message: data.message || data.msg || 'An error occurred',
+                message: data.error || 'An error occurred',
                 status,
                 data,
             });

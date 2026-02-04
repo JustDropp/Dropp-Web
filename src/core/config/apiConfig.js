@@ -6,6 +6,7 @@ export const API_CONFIG = {
         LOGIN: '/user/login',
         SIGNUP: '/user/signup',
         PROFILE: '/user/profile/',
+        UPDATE_PASSWORD: '/user/update-password',
     },
     TIMEOUT: 10000,
 };

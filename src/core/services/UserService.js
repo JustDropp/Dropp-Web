@@ -28,6 +28,20 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * Update user password
+     * @param {string} oldPassword
+     * @param {string} newPassword
+     * @returns {Promise<any>}
+     */
+    async updatePassword(oldPassword, newPassword) {
+        try {
+            return await UserRepository.updatePassword({ oldPassword, newPassword });
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserService();

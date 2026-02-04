@@ -34,6 +34,7 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
     const [usernameDaysLeft, setUsernameDaysLeft] = useState(0);
     const [customPronoun, setCustomPronoun] = useState('');
     const [isCustomPronoun, setIsCustomPronoun] = useState(false);
+    const [error, setError] = useState(null);
 
     const fileInputRef = useRef(null);
     const locationTimerRef = useRef(null);
@@ -205,7 +206,15 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
             onClose();
         } catch (error) {
             console.error("Error updating profile:", error);
-            // Ideally show error toast
+            if (error.response && error.response.data && error.response.data.message) {
+                if (error.response.data.message.toLowerCase().includes('username')) {
+                    setError("Username already exists. Please choose another one.");
+                } else {
+                    setError(error.response.data.message);
+                }
+            } else {
+                setError("Failed to update profile. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -223,6 +232,11 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
                     </div>
 
                     <div className="modal-body">
+                        {error && (
+                            <div className="form-error-message" style={{ color: 'red', marginBottom: '16px', padding: '10px', backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: '8px' }}>
+                                {error}
+                            </div>
+                        )}
                         <div className="profile-image-upload">
                             <div className="image-preview-container">
                                 {previewImage ? (

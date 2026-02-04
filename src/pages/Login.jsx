@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
 
@@ -12,7 +13,9 @@ const Login = () => {
         password: '',
     });
     const [loading, setLoading] = useState(false);
+
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -58,10 +61,16 @@ const Login = () => {
                 // Redirect to home page
                 navigate('/');
             } else {
-                setError(result.error);
+                if (result.error && (result.error.toLowerCase().includes('not found') || result.error.toLowerCase().includes('exist'))) {
+                    setError('User doesn\'t exist, please sign up');
+                } else if (result.error && result.error.toLowerCase().includes('invalid')) {
+                    setError('Invalid credentials, please try again');
+                } else {
+                    setError(result.error);
+                }
             }
         } catch (err) {
-            setError('An unexpected error occurred');
+            setError(err.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
@@ -97,17 +106,44 @@ const Login = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            disabled={loading}
-                            autoComplete="current-password"
-                        />
+                        <div className="label-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label htmlFor="password">Password</label>
+                            <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--primary-color)', textDecoration: 'none' }}>
+                                Forgot Password?
+                            </Link>
+                        </div>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                disabled={loading}
+                                autoComplete="current-password"
+                                style={{ width: '100%' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: '#666',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '0'
+                                }}
+                            >
+                                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button

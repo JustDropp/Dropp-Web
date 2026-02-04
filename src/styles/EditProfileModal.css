@@ -328,3 +328,58 @@
 .modal-content::-webkit-scrollbar-thumb:hover {
     background-color: var(--text-secondary);
 }
+
+/* Password Strength Styles */
+/* Modern Password Strength Styles - Modal Version */
+.password-strength-container {
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.strength-bar-container {
+    display: flex;
+    gap: 4px;
+    height: 4px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.strength-bar-segment {
+    flex: 1;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+}
+
+.strength-bar-segment.filled {
+    background-color: #16a34a;
+    /* Green */
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
+}
+
+.strength-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.strength-pill {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Match Auth.css logic */
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.strength-pill.met {
+    background-color: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+    border-color: rgba(22, 163, 74, 0.2);
+}

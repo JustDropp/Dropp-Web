@@ -36,6 +36,20 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Update user password
+     * @param {Object} data - Password update data { oldPassword, newPassword }
+     * @returns {Promise<any>}
+     */
+    async updatePassword(data) {
+        try {
+            const response = await apiClient.patch(API_CONFIG.ENDPOINTS.UPDATE_PASSWORD, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

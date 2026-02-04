@@ -8,10 +8,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://63ztvgg2-8000.inc1.devtunnels.ms',
+        target: 'http://localhost:8000', // Changed from devtunnel for local dev
+        // target: 'https://63ztvgg2-8000.inc1.devtunnels.ms',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^/, ''),
       },
     },
   },

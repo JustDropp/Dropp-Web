@@ -1,9 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Settings as SettingsIcon, User, Lock, Moon, Globe, HelpCircle } from 'lucide-react';
+import UpdatePasswordModal from '../components/UpdatePasswordModal';
+import { AnimatePresence } from 'framer-motion';
 import '../styles/Settings.css';
 
 const Settings = () => {
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
+
     return (
         <motion.div
             className="settings-page"
@@ -59,7 +63,7 @@ const Settings = () => {
                             <h3>Password</h3>
                             <p>Change your password</p>
                         </div>
-                        <button className="settings-btn">Update</button>
+                        <button className="settings-btn" onClick={() => setIsPasswordModalOpen(true)}>Update</button>
                     </div>
 
                     <div className="settings-item">
@@ -197,7 +201,14 @@ const Settings = () => {
                     </div>
                 </section>
             </div>
-        </motion.div>
+
+
+            <AnimatePresence>
+                {isPasswordModalOpen && (
+                    <UpdatePasswordModal onClose={() => setIsPasswordModalOpen(false)} />
+                )}
+            </AnimatePresence>
+        </motion.div >
     );
 };
 
