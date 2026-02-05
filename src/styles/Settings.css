@@ -213,3 +213,34 @@
         padding: var(--spacing-xs) var(--spacing-sm);
     }
 }
+
+/* Verification Styles */
+.verification-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem !important;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.verification-status.unverified {
+    color: #ef4444;
+}
+
+.verify-btn {
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.verify-btn:hover {
+    background: var(--accent-color);
+    color: var(--accent-text);
+}
+
+.settings-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}

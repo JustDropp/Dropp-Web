@@ -15,8 +15,12 @@ apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
         if (token) {
+            console.log(`[ApiClient] Attaching token: ${token.substring(0, 10)}...`);
             config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            console.warn("[ApiClient] No token found in localStorage");
         }
+        console.log(`[ApiClient] Request: ${config.method.toUpperCase()} ${config.url}`, config.headers);
         return config;
     },
     (error) => {

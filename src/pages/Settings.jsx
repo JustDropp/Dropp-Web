@@ -1,12 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Settings as SettingsIcon, User, Lock, Moon, Globe, HelpCircle } from 'lucide-react';
+import { Bell, Settings as SettingsIcon, User, Lock, Moon, Globe, HelpCircle, AlertCircle } from 'lucide-react';
 import UpdatePasswordModal from '../components/UpdatePasswordModal';
 import { AnimatePresence } from 'framer-motion';
+import UserService from '../core/services/UserService';
+import Snackbar from '../components/Snackbar';
 import '../styles/Settings.css';
 
 const Settings = () => {
-    const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [userProfile, setUserProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [snackbar, setSnackbar] = useState({
+        isVisible: false,
+        message: '',
+        type: 'success'
+    });
+
+    const fetchProfile = async () => {
+        try {
+            const profile = await UserService.getUserProfile();
+            console.log("Fetched Profile:", profile);
+            setUserProfile(profile);
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            showSnackbar('Failed to load profile settings', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const showSnackbar = (message, type = 'success') => {
+        setSnackbar({ isVisible: true, message, type });
+    };
+
+    const closeSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, isVisible: false }));
+    };
+
+    const handleVerifyEmail = async () => {
+        console.log("Verify Email Button Clicked");
+        try {
+            console.log("Calling UserService.verifyEmail...");
+            await UserService.verifyEmail();
+            console.log("Verification email sent successfully");
+            showSnackbar('Verification link has been sent to your email', 'success');
+        } catch (error) {
+            console.error('Error sending verification email:', error);
+            showSnackbar('Failed to send verification email. Please try again.', 'error');
+        }
+    };
 
     return (
         <motion.div
@@ -37,15 +84,27 @@ const Settings = () => {
                     <div className="settings-item">
                         <div className="settings-item-content">
                             <h3>Email Address</h3>
-                            <p>user@example.com</p>
+                            <p>{loading ? 'Loading...' : (userProfile?.email || 'user@example.com')}</p>
+                            {!loading && userProfile && !userProfile.emailVerified && (
+                                <p className="verification-status unverified">
+                                    <AlertCircle size={14} /> Unverified
+                                </p>
+                            )}
                         </div>
-                        <button className="settings-btn">Change</button>
+                        <div className="settings-actions">
+                            {!loading && userProfile && !userProfile.emailVerified && (
+                                <button className="settings-btn verify-btn" onClick={handleVerifyEmail}>
+                                    Verify Email
+                                </button>
+                            )}
+                            {/* <button className="settings-btn">Change</button> */}
+                        </div>
                     </div>
 
                     <div className="settings-item">
                         <div className="settings-item-content">
                             <h3>Username</h3>
-                            <p>@username</p>
+                            <p>{loading ? 'Loading...' : (userProfile?.username ? `@${userProfile.username}` : '@username')}</p>
                         </div>
                         <button className="settings-btn">Change</button>
                     </div>
@@ -208,8 +267,14 @@ const Settings = () => {
                     <UpdatePasswordModal onClose={() => setIsPasswordModalOpen(false)} />
                 )}
             </AnimatePresence>
+
+            <Snackbar
+                isVisible={snackbar.isVisible}
+                message={snackbar.message}
+                type={snackbar.type}
+                onClose={closeSnackbar}
+            />
         </motion.div >
     );
 };
-
 export default Settings;

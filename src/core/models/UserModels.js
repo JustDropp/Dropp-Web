@@ -24,6 +24,7 @@ export class UserProfile {
         this.createdAt = data.createdAt;
         this.updatedAt = data.updatedAt;
         this.usernameLastUpdated = data.usernameLastUpdated;
+        this.emailVerified = data.emailVerified;
     }
 
     static fromJSON(json) {

@@ -50,6 +50,22 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Verify email
+     * @returns {Promise<any>}
+     */
+    async verifyEmail() {
+        console.log("UserRepository.verifyEmail called. Endpoint:", API_CONFIG.ENDPOINTS.VERIFY_EMAIL);
+        try {
+            const response = await apiClient.get(API_CONFIG.ENDPOINTS.VERIFY_EMAIL);
+            console.log("UserRepository.verifyEmail response:", response);
+            return response.data;
+        } catch (error) {
+            console.error("UserRepository.verifyEmail error:", error);
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

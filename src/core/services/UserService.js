@@ -42,6 +42,20 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * Verify email
+     * @returns {Promise<any>}
+     */
+    async verifyEmail() {
+        console.log("UserService.verifyEmail called");
+        try {
+            return await UserRepository.verifyEmail();
+        } catch (error) {
+            console.error("UserService.verifyEmail error:", error);
+            throw error;
+        }
+    }
 }
 
 export default new UserService();
