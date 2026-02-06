@@ -8,6 +8,7 @@ export const API_CONFIG = {
         PROFILE: '/user/profile/',
         VERIFY_EMAIL: '/user/verify-email',
         UPDATE_PASSWORD: '/user/update-password',
+        DELETE_ACCOUNT: '/user/delete',
     },
     TIMEOUT: 10000,
 };

@@ -244,3 +244,102 @@
     gap: 8px;
     align-items: center;
 }
+
+/* Delete Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    padding: var(--spacing-md);
+}
+
+.modal-content.danger-modal {
+    background: var(--bg-primary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--glass-shadow);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.danger-modal h2 {
+    color: #ef4444;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+}
+
+.warning-text {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-md);
+    color: #ef4444;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-sm);
+    align-items: flex-start;
+}
+
+.danger-modal>p {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.settings-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+    box-sizing: border-box;
+    font-family: var(--font-sans);
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    background: var(--bg-primary);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: var(--spacing-sm);
+}
+
+.modal-actions .settings-btn {
+    padding: 0.625rem 1.25rem;
+    font-family: var(--font-sans);
+}
+
+.modal-actions .settings-btn:not(.btn-danger) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid transparent;
+}
+
+.modal-actions .settings-btn:not(.btn-danger):hover {
+    background: var(--border-color);
+}

@@ -56,6 +56,18 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * Delete user account
+     * @returns {Promise<any>}
+     */
+    async deleteAccount() {
+        try {
+            return await UserRepository.deleteAccount();
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserService();

@@ -66,6 +66,19 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Delete user account
+     * @returns {Promise<any>}
+     */
+    async deleteAccount() {
+        try {
+            const response = await apiClient.delete(API_CONFIG.ENDPOINTS.DELETE_ACCOUNT);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

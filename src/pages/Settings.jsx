@@ -9,6 +9,8 @@ import '../styles/Settings.css';
 
 const Settings = () => {
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteUsername, setDeleteUsername] = useState('');
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [snackbar, setSnackbar] = useState({
@@ -52,6 +54,24 @@ const Settings = () => {
         } catch (error) {
             console.error('Error sending verification email:', error);
             showSnackbar('Failed to send verification email. Please try again.', 'error');
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (deleteUsername !== userProfile?.username) {
+            showSnackbar('Username does not match', 'error');
+            return;
+        }
+
+        try {
+            await UserService.deleteAccount();
+            showSnackbar('Account deleted successfully', 'success');
+            // Clear local storage and redirect to landing
+            localStorage.clear();
+            window.location.href = '/#/landing';
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            showSnackbar(error.message || 'Failed to delete account', 'error');
         }
     };
 
@@ -245,18 +265,10 @@ const Settings = () => {
 
                     <div className="settings-item">
                         <div className="settings-item-content">
-                            <h3>Deactivate Account</h3>
-                            <p>Temporarily disable your account</p>
-                        </div>
-                        <button className="settings-btn btn-danger">Deactivate</button>
-                    </div>
-
-                    <div className="settings-item">
-                        <div className="settings-item-content">
                             <h3>Delete Account</h3>
                             <p>Permanently delete your account and all data</p>
                         </div>
-                        <button className="settings-btn btn-danger">Delete</button>
+                        <button className="settings-btn btn-danger" onClick={() => setIsDeleteModalOpen(true)}>Delete</button>
                     </div>
                 </section>
             </div>
@@ -265,6 +277,43 @@ const Settings = () => {
             <AnimatePresence>
                 {isPasswordModalOpen && (
                     <UpdatePasswordModal onClose={() => setIsPasswordModalOpen(false)} />
+                )}
+                {isDeleteModalOpen && (
+                    <div className="modal-overlay">
+                        <motion.div
+                            className="modal-content danger-modal"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                        >
+                            <h2>Delete Account</h2>
+                            <p className="warning-text">
+                                <AlertCircle size={20} />
+                                This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                            </p>
+                            <p>Please type <strong>{userProfile?.username}</strong> to confirm.</p>
+                            <input
+                                type="text"
+                                value={deleteUsername}
+                                onChange={(e) => setDeleteUsername(e.target.value)}
+                                placeholder="Type your username"
+                                className="settings-input"
+                            />
+                            <div className="modal-actions">
+                                <button className="settings-btn" onClick={() => {
+                                    setIsDeleteModalOpen(false);
+                                    setDeleteUsername('');
+                                }}>Cancel</button>
+                                <button
+                                    className="settings-btn btn-danger"
+                                    onClick={handleDeleteAccount}
+                                    disabled={deleteUsername !== userProfile?.username}
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
