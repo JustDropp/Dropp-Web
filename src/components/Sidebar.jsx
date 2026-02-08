@@ -4,7 +4,6 @@ import {
     Home,
     Compass,
     Users,
-    Info,
     User,
     LogOut,
     ChevronRight,
@@ -28,7 +27,6 @@ const Sidebar = () => {
         { path: '/', label: 'Home', icon: Home },
         { path: '/explore', label: 'Explore', icon: Compass },
         { path: '/creators', label: 'Creators', icon: Users },
-        { path: '/about', label: 'About', icon: Info },
     ];
 
     const userNavItems = isAuthenticated ? [
@@ -175,3 +173,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

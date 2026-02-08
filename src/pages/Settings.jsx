@@ -259,6 +259,52 @@ const Settings = () => {
                     </div>
                 </section>
 
+                {/* About & Links */}
+                <section className="settings-section">
+                    <h2 className="section-title">
+                        <Globe size={20} />
+                        About & Links
+                    </h2>
+
+                    <div className="settings-item">
+                        <div className="settings-item-content">
+                            <h3>About Dropp</h3>
+                            <p>Learn more about our platform</p>
+                        </div>
+                        <button className="settings-btn">View</button>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="settings-item-content">
+                            <h3>Blog</h3>
+                            <p>Read our latest updates and stories</p>
+                        </div>
+                        <button className="settings-btn">Visit</button>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="settings-item-content">
+                            <h3>Careers</h3>
+                            <p>Join our growing team</p>
+                        </div>
+                        <button className="settings-btn">Explore</button>
+                    </div>
+
+                    <div className="settings-links-row">
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="settings-social-link">
+                            Twitter
+                        </a>
+                        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="settings-social-link">
+                            TikTok
+                        </a>
+                    </div>
+
+                    <div className="settings-links-row">
+                        <a href="#" className="settings-legal-link">Privacy Policy</a>
+                        <a href="#" className="settings-legal-link">Terms of Service</a>
+                    </div>
+                </section>
+
                 {/* Danger Zone */}
                 <section className="settings-section danger-section">
                     <h2 className="section-title">Danger Zone</h2>

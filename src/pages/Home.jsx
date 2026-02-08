@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MasonryGrid from '../components/MasonryGrid';
-import { mockCollections, categories, getCollectionsByCategory } from '../data/mockData';
+import FloatingActionButton from '../components/FloatingActionButton';
+import CollectionService from '../core/services/CollectionService';
+import { categories } from '../data/mockData';
 import '../styles/Home.css';
 
 const Home = () => {
     const [activeCategory, setActiveCategory] = useState('All');
-    const [collections, setCollections] = useState(mockCollections);
+    const [collections, setCollections] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchCollections();
+    }, []);
+
+    const fetchCollections = async () => {
+        try {
+            setLoading(true);
+            const data = await CollectionService.getCollections();
+            setCollections(data);
+        } catch (error) {
+            console.error('Failed to fetch collections:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCategoryChange = (category) => {
         setActiveCategory(category);
-        setCollections(getCollectionsByCategory(category));
+        // TODO: Implement category filtering when backend supports it
     };
 
     return (
@@ -39,8 +58,14 @@ const Home = () => {
             </div>
 
             <div className="home-content">
-                <MasonryGrid collections={collections} />
+                {loading ? (
+                    <div className="loading-state">Loading collections...</div>
+                ) : (
+                    <MasonryGrid collections={collections} />
+                )}
             </div>
+
+            <FloatingActionButton />
         </motion.div>
     );
 };

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Grid, Film, Tag, Bookmark } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/Profile.css';
 
 const ProfileTabs = ({ collections, activeTab: initialTab = 'collections' }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
+    const navigate = useNavigate();
 
     const tabs = [
         { id: 'collections', label: 'Collections', icon: Grid },
@@ -12,24 +15,49 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections' }) => 
         { id: 'saved', label: 'Saved', icon: Bookmark }
     ];
 
+    const handleCollectionClick = (collectionId) => {
+        navigate(`/collection/${collectionId}`);
+    };
+
     const renderContent = () => {
         switch (activeTab) {
             case 'collections':
                 return (
                     <div className="profile-grid">
                         {collections && collections.length > 0 ? (
-                            collections.map((item) => (
-                                <div key={item.id} className="profile-grid-item">
-                                    <img src={item.image} alt={item.title} />
-                                    <div className="profile-grid-overlay">
-                                        <span className="grid-item-count">{item.itemCount} items</span>
+                            collections.map((collection) => {
+                                const displayImage = collection.displayImageUrl?.startsWith('http')
+                                    ? collection.displayImageUrl
+                                    : API_CONFIG.BASE_URL + collection.displayImageUrl;
+
+                                return (
+                                    <div
+                                        key={collection._id}
+                                        className="profile-grid-item"
+                                        onClick={() => handleCollectionClick(collection._id)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <img
+                                            src={displayImage}
+                                            alt={collection.title}
+                                            onError={(e) => {
+                                                e.target.src = API_CONFIG.BASE_URL + '/images/book.svg';
+                                            }}
+                                        />
+                                        <div className="profile-grid-overlay">
+                                            <div className="collection-info">
+                                                <h4>{collection.title}</h4>
+                                                {collection.desc && <p>{collection.desc}</p>}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="profile-empty-state">
                                 <Grid size={48} />
                                 <p>No collections yet</p>
+                                <span>Create your first collection to get started</span>
                             </div>
                         )}
                     </div>

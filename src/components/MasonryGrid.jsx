@@ -1,13 +1,48 @@
 import React from 'react';
-import CollectionCard from './CollectionCard';
+import { useNavigate } from 'react-router-dom';
+import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/Collection.css';
 
 const MasonryGrid = ({ collections, columns = { desktop: 4, tablet: 3, mobile: 2 } }) => {
+    const navigate = useNavigate();
+
+    const handleCollectionClick = (collectionId) => {
+        navigate(`/collection/${collectionId}`);
+    };
+
     return (
         <div className="masonry-grid">
-            {collections.map((collection) => (
-                <CollectionCard key={collection.id} collection={collection} />
-            ))}
+            {collections && collections.length > 0 ? (
+                collections.map((collection) => {
+                    const displayImage = collection.displayImageUrl?.startsWith('http')
+                        ? collection.displayImageUrl
+                        : API_CONFIG.BASE_URL + collection.displayImageUrl;
+
+                    return (
+                        <div
+                            key={collection._id}
+                            className="masonry-item"
+                            onClick={() => handleCollectionClick(collection._id)}
+                        >
+                            <img
+                                src={displayImage}
+                                alt={collection.title}
+                                onError={(e) => {
+                                    e.target.src = API_CONFIG.BASE_URL + '/images/book.svg';
+                                }}
+                            />
+                            <div className="masonry-item-overlay">
+                                <h3>{collection.title}</h3>
+                                {collection.desc && <p>{collection.desc}</p>}
+                            </div>
+                        </div>
+                    );
+                })
+            ) : (
+                <div className="masonry-empty">
+                    <p>No collections available</p>
+                </div>
+            )}
         </div>
     );
 };

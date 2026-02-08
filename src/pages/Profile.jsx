@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileTabs from '../components/ProfileTabs';
+import FloatingActionButton from '../components/FloatingActionButton';
 import UserService from '../core/services/UserService';
+import CollectionService from '../core/services/CollectionService';
 import '../styles/Profile.css';
 import apiClient from '../core/config/apiClient';
 import { API_CONFIG } from '../core/config/apiConfig';
@@ -14,30 +16,32 @@ import { AnimatePresence } from 'framer-motion';
 const Profile = () => {
     const { username } = useParams();
     const [user, setUser] = React.useState(null);
+    const [collections, setCollections] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
     React.useEffect(() => {
-        const fetchProfile = async () => {
+        const fetchProfileData = async () => {
             try {
-                // If we have a username param and it's different from logged in user, we might need a different API
-                // For now, based on prompt, we are just implementing GET user/profile which usually returns logged in user
-                // or specific user if the endpoint supports parameters (which the prompt defined as user/profile/)
-                // Assuming this endpoint returns the profile of the authenticated user or the requested user context.
-                // Given the prompt specific data, it seems to be a specific user profile.
+                setLoading(true);
 
+                // Fetch user profile
                 const profileData = await UserService.getUserProfile();
                 setUser(profileData);
+
+                // Fetch user collections
+                const collectionsData = await CollectionService.getCollections();
+                setCollections(collectionsData);
             } catch (err) {
-                console.error("Failed to fetch profile:", err);
+                console.error("Failed to fetch profile data:", err);
                 setError("Failed to load profile data.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProfile();
+        fetchProfileData();
     }, [username]);
 
     const handleFollow = () => {
@@ -54,8 +58,6 @@ const Profile = () => {
         console.log("Profile updated, refreshing data...");
         // Re-fetch the profile to ensure we have the absolute latest data from server
         try {
-            // We can use the existing user data or params to know which profile to fetch, 
-            // but usually after edit it is the own profile.
             const profileData = await UserService.getUserProfile();
             setUser(profileData);
         } catch (err) {
@@ -77,7 +79,7 @@ const Profile = () => {
         stats: {
             followers: user.followers || 0,
             following: user.following || 0,
-            collections: user.collections ? user.collections.length : 0
+            collections: collections.length
         }
     };
 
@@ -99,7 +101,7 @@ const Profile = () => {
                 />
 
                 <ProfileTabs
-                    collections={user.collections || []}
+                    collections={collections}
                     activeTab="collections"
                 />
 
@@ -113,6 +115,8 @@ const Profile = () => {
                     )}
                 </AnimatePresence>
             </div>
+
+            <FloatingActionButton />
         </motion.div>
     );
 };

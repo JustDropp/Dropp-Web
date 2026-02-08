@@ -348,3 +348,60 @@
 .modal-actions .settings-btn:not(.btn-danger):hover {
     background: var(--border-color);
 }
+
+/* Settings Links Row */
+.settings-links-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-links-row:last-child {
+    border-bottom: none;
+}
+
+.settings-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.settings-social-link:hover {
+    background: var(--accent-gradient);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.settings-legal-link {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.settings-legal-link:hover {
+    color: var(--accent-blue);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .settings-links-row {
+        gap: 0.75rem;
+    }
+
+    .settings-social-link {
+        flex: 1;
+        justify-content: center;
+        min-width: calc(50% - 0.5rem);
+    }
+}

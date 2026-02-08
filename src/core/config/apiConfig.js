@@ -9,6 +9,8 @@ export const API_CONFIG = {
         VERIFY_EMAIL: '/user/verify-email',
         UPDATE_PASSWORD: '/user/update-password',
         DELETE_ACCOUNT: '/user/delete',
+        COLLECTIONS: '/c',
+        COLLECTION_BY_ID: '/c',
     },
     TIMEOUT: 10000,
 };
