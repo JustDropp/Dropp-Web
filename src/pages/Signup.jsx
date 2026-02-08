@@ -143,7 +143,7 @@ const Signup = () => {
         <div className="auth-container">
             <div className="auth-card signup-card">
                 <div className="auth-header">
-                    <h1>Join Dropp</h1>
+                    <h1>Join <span className="auth-accent">dropp.</span></h1>
                     <p>Create your account to get started</p>
                 </div>
 

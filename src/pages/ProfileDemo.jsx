@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Link as LinkIcon, Grid, Users } from 'lucide-react';
+import { MapPin, Link as LinkIcon, Grid } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 
 const ProfileDemo = () => {
@@ -35,18 +35,29 @@ const ProfileDemo = () => {
                             height: '120px',
                             borderRadius: '50%',
                             marginBottom: 'var(--spacing-md)',
-                            border: '4px solid var(--bg-secondary)'
+                            border: '3px solid var(--border-color)'
                         }}
                     />
-                    <h1 style={{ fontSize: '2rem', marginBottom: 'var(--spacing-xs)' }}>{user.name}</h1>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-sm)' }}>@{user.username}</p>
-                    <p style={{ maxWidth: '500px', marginBottom: 'var(--spacing-md)' }}>{user.bio}</p>
+                    <h1 style={{
+                        fontSize: '2rem',
+                        marginBottom: 'var(--spacing-xs)',
+                        fontFamily: 'var(--font-display)',
+                        fontWeight: '700',
+                        letterSpacing: '-0.03em',
+                    }}>{user.name}</h1>
+                    <p style={{
+                        color: 'var(--accent-blue)',
+                        marginBottom: 'var(--spacing-sm)',
+                        fontFamily: 'var(--font-display)',
+                        fontWeight: '500',
+                    }}>@{user.username}</p>
+                    <p style={{ maxWidth: '500px', marginBottom: 'var(--spacing-md)', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{user.bio}</p>
 
                     <div style={{
                         display: 'flex',
                         gap: 'var(--spacing-md)',
                         color: 'var(--text-secondary)',
-                        fontSize: '0.9rem',
+                        fontSize: '0.875rem',
                         flexWrap: 'wrap',
                         justifyContent: 'center'
                     }}>
@@ -54,7 +65,7 @@ const ProfileDemo = () => {
                             <MapPin size={16} /> {user.location}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <LinkIcon size={16} /> <a href="#" style={{ textDecoration: 'underline' }}>{user.website}</a>
+                            <LinkIcon size={16} /> <a href="#" style={{ textDecoration: 'underline', color: 'var(--accent-blue)' }}>{user.website}</a>
                         </div>
                     </div>
 
@@ -66,18 +77,26 @@ const ProfileDemo = () => {
                         paddingTop: 'var(--spacing-md)'
                     }}>
                         <div className="text-center">
-                            <div style={{ fontWeight: '700', fontSize: '1.25rem' }}>{user.followers}</div>
-                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Followers</div>
+                            <div style={{ fontWeight: '700', fontSize: '1.25rem', fontFamily: 'var(--font-display)' }}>{user.followers}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)' }}>Followers</div>
                         </div>
                         <div className="text-center">
-                            <div style={{ fontWeight: '700', fontSize: '1.25rem' }}>{user.following}</div>
-                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Following</div>
+                            <div style={{ fontWeight: '700', fontSize: '1.25rem', fontFamily: 'var(--font-display)' }}>{user.following}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-display)' }}>Following</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Collections Grid */}
-                <h2 style={{ marginBottom: 'var(--spacing-md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{
+                    marginBottom: 'var(--spacing-md)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: '700',
+                    letterSpacing: '-0.02em',
+                }}>
                     <Grid size={24} /> Collections
                 </h2>
 
@@ -86,13 +105,13 @@ const ProfileDemo = () => {
                     gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                     gap: 'var(--spacing-md)'
                 }}>
-                    {collections.map((collection, index) => (
+                    {collections.map((collection) => (
                         <Link to={`/collection/${collection.id}`} key={collection.id}>
                             <motion.div
                                 whileHover={{ y: -5 }}
                                 className="glass-panel"
                                 style={{
-                                    borderRadius: 'var(--radius-md)',
+                                    borderRadius: 'var(--radius-lg)',
                                     overflow: 'hidden',
                                     cursor: 'pointer',
                                     height: '100%'
@@ -107,8 +126,8 @@ const ProfileDemo = () => {
                                     />
                                 </div>
                                 <div style={{ padding: 'var(--spacing-sm)' }}>
-                                    <h3 style={{ fontSize: '1.125rem', marginBottom: '4px' }}>{collection.title}</h3>
-                                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{collection.items} items</p>
+                                    <h3 style={{ fontSize: '1.125rem', marginBottom: '4px', fontFamily: 'var(--font-display)', fontWeight: '600' }}>{collection.title}</h3>
+                                    <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{collection.items} items</p>
                                 </div>
                             </motion.div>
                         </Link>

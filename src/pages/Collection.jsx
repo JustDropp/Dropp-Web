@@ -31,8 +31,8 @@ const Collection = () => {
                 </Link>
 
                 <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-                    <h1 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-xs)' }}>{collection.title}</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>{collection.items} items in this collection.</p>
+                    <h1 style={{ fontSize: '2.5rem', marginBottom: 'var(--spacing-xs)', fontFamily: 'var(--font-display)', fontWeight: '700', letterSpacing: '-0.03em' }}>{collection.title}</h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>{collection.items} items in this collection.</p>
                 </div>
 
                 <div style={{

@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
+import CustomCursor from './components/CustomCursor';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
@@ -106,7 +107,8 @@ const AppContent = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="app">
+    <div className={`app${!isAuthenticated ? ' landing-cursor-active' : ''}`}>
+      {!isAuthenticated && <CustomCursor />}
       {isAuthenticated && <Sidebar />}
       <div className="app-content">
         {!isAuthenticated && <Header />}

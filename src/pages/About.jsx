@@ -55,7 +55,7 @@ const About = () => {
             <div className="about-container">
                 {/* Hero Section */}
                 <div className="about-hero">
-                    <h1 className="about-title">About dropp.</h1>
+                    <h1 className="about-title">About <span className="accent">dropp.</span></h1>
                     <p className="about-subtitle">
                         Where influence meets reality. We're redefining how people discover and share the products they love.
                     </p>

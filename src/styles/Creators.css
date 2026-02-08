@@ -1,4 +1,4 @@
-/* Creators Page Styles */
+/* Creators Page Styles — Editorial Theme */
 
 .creators-page {
     padding: var(--spacing-md);
@@ -18,11 +18,22 @@
 }
 
 .creators-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: var(--spacing-sm);
     color: var(--text-primary);
+    letter-spacing: -0.03em;
+}
+
+.creators-title .accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .creators-subtitle {
@@ -83,8 +94,8 @@
 }
 
 .creator-username {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    color: var(--accent-blue);
     margin: 0;
 }
 
@@ -110,14 +121,14 @@
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-fast);
 }
 
 .creator-website:hover {
-    color: var(--text-primary);
+    color: var(--accent-blue);
 }
 
 /* Stats */
@@ -138,11 +149,15 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
+    font-family: var(--font-display);
 }
 
 .stat-label {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-display);
 }
 
 /* Follow Button */
@@ -153,20 +168,21 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: var(--accent-color);
-    color: var(--accent-text);
+    background: var(--accent-gradient);
+    color: #fff;
     border: none;
     border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 0.9375rem;
     cursor: pointer;
     transition: all var(--transition-fast);
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
 }
 
 .creator-follow-btn:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 135, 248, 0.25);
 }
 
 .creator-follow-btn.following {
@@ -177,6 +193,7 @@
 
 .creator-follow-btn.following:hover {
     border-color: var(--text-primary);
+    box-shadow: none;
 }
 
 /* Responsive */
@@ -192,7 +209,7 @@
     }
 
     .creators-title {
-        font-size: 1.75rem;
+        font-size: 2rem;
     }
 
     .creators-subtitle {
@@ -220,7 +237,7 @@
     }
 
     .creators-title {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     .creator-stats {

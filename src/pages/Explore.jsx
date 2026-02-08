@@ -26,7 +26,7 @@ const Explore = () => {
             transition={{ duration: 0.5 }}
         >
             <div className="explore-header">
-                <h1 className="explore-title">Explore Collections</h1>
+                <h1 className="explore-title">Explore <span className="accent">collections.</span></h1>
 
                 <div className="explore-search">
                     <Search size={20} />

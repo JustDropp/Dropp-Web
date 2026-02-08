@@ -1,118 +1,221 @@
-/* Landing Page Component Styles */
+/* Landing Page Styles */
 
-/* Hero Section - Already uses clamp() in inline styles, these are supplementary */
-.hero-section {
-    min-height: 90vh;
-    padding: var(--spacing-xl) var(--spacing-md);
-}
-
-/* Creator Spotlight - Override grid for smaller screens */
-.creator-spotlight-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-}
-
-/* Features Section */
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-md);
-}
-
-/* Reviews Section */
-.reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-md);
-}
-
-/* Global Landing Page Responsive Fixes */
-@media (max-width: 1024px) {
-    .container {
-        padding: 0 var(--spacing-md);
+/* Custom cursor — hide default on desktop */
+@media (hover: hover) and (pointer: fine) {
+    .landing-cursor-active,
+    .landing-cursor-active * {
+        cursor: none !important;
     }
+}
+
+/* Desktop nav visibility */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}
+
+/* Hero section — split grid */
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 0 var(--spacing-sm);
+    .hero-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+        text-align: center;
     }
 
-    /* Reduce grid minimum widths  */
-    .creator-spotlight-grid,
-    .reviews-grid {
-        grid-template-columns: 1fr;
+    .hero-collage {
+        display: none !important;
     }
+}
 
-    .features-grid {
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
+/* Hero buttons responsive */
+.hero-buttons {
+    flex-direction: row;
+}
 
-    /* Ensure buttons stack properly */
+@media (max-width: 768px) {
     .hero-buttons {
         flex-direction: column !important;
         width: 100%;
+        align-items: center;
     }
 
-    .hero-buttons .btn {
+    .hero-buttons a,
+    .hero-buttons button {
         width: 100%;
+        max-width: 280px;
         justify-content: center;
     }
 }
 
+/* Stats header — split grid */
+.stats-header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .stats-header-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+}
+
+/* Stats grid responsive */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
 @media (max-width: 480px) {
-
-    /* Force all grids to single  column on small mobile */
-    .creator-spotlight-grid,
-    .features-grid,
-    .reviews-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* Reduce padding for very small screens */
-    .container {
-        padding: 0 1rem;
-    }
-
-    /* Ensure text doesn't overflow */
-    h1,
-    h2,
-    h3,
-    h4 {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    /* Full width buttons */
-    .btn {
-        width: 100%;
-        padding: 14px 24px !important;
+    .stats-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
-/* Fix for CreatorSpotlight component specifically */
-@media (max-width: 640px) {
+/* Feature rows — alternating layout */
+.feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
 
-    /* Make creator preview card responsive */
-    .creator-preview-card {
-        height: 350px !important;
+@media (max-width: 768px) {
+    .feature-row {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+    }
+
+    /* Reset order so text always comes first on mobile */
+    .feature-row > div {
+        order: 0 !important;
     }
 }
 
-@media (max-width: 400px) {
+/* Feature image tilt container */
+.feature-image {
+    transition: transform 0.1s ease-out;
+    will-change: transform;
+}
 
-    /* Extra small devices */
-    .creator-preview-card {
-        height: 300px !important;
+/* Creator spotlight scrollable area */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Reviews section — split layout */
+.reviews-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 80px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .reviews-layout {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+    }
+}
+
+/* App download section — split grid */
+.app-download-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .app-download-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
     }
 
-    /* Smaller font sizes */
-    h1 {
-        font-size: 2rem !important;
+    .app-download-mockup {
+        display: none !important;
     }
+}
 
-    h2 {
-        font-size: 1.75rem !important;
+/* Footer grid responsive */
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr !important;
     }
+}
+
+@media (max-width: 480px) {
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Input focus states */
+[data-theme="dark"] input:focus {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="light"] input:focus {
+    border-color: rgba(56, 135, 248, 0.4) !important;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Global responsive spacing */
+@media (max-width: 768px) {
+    section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+/* Word breaks for long text */
+h1, h2, h3, h4 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Marquee pause on hover */
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+/* Selection color */
+::selection {
+    background: rgba(56, 135, 248, 0.3);
+    color: inherit;
 }

@@ -181,8 +181,8 @@
 }
 
 .sidebar-item.active {
-    background: var(--accent-color);
-    color: var(--accent-text);
+    background: var(--accent-gradient);
+    color: #fff;
     font-weight: 600;
 }
 
@@ -217,7 +217,7 @@
     transform: translateY(-50%);
     width: 3px;
     height: 60%;
-    background: var(--accent-text);
+    background: #fff;
     border-radius: 2px 0 0 2px;
 }
 
@@ -280,7 +280,7 @@
 }
 
 .bottom-nav-item.active {
-    color: var(--accent-color);
+    color: var(--accent-blue, #3887F8);
 }
 
 .bottom-nav-item.active::before {
@@ -291,7 +291,7 @@
     transform: translateX(-50%);
     width: 40px;
     height: 3px;
-    background: var(--accent-color);
+    background: var(--accent-gradient);
     border-radius: 0 0 3px 3px;
 }
 

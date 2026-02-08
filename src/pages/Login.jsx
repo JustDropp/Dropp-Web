@@ -80,7 +80,7 @@ const Login = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-header">
-                    <h1>Welcome Back</h1>
+                    <h1>Welcome <span className="auth-accent">back.</span></h1>
                     <p>Sign in to continue to Dropp</p>
                 </div>
 
@@ -108,7 +108,7 @@ const Login = () => {
                     <div className="form-group">
                         <div className="label-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <label htmlFor="password">Password</label>
-                            <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--primary-color)', textDecoration: 'none' }}>
+                            <Link to="/forgot-password" style={{ fontSize: '0.75rem', color: 'var(--accent-blue)', textDecoration: 'none', fontFamily: 'var(--font-display)', fontWeight: '500' }}>
                                 Forgot Password?
                             </Link>
                         </div>

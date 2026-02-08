@@ -1,4 +1,4 @@
-/* Settings Page Styles */
+/* Settings Page Styles — Editorial Theme */
 
 .settings-page {
     padding: var(--spacing-md);
@@ -13,9 +13,10 @@
 .settings-title {
     font-size: 2rem;
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: var(--spacing-lg);
     color: var(--text-primary);
+    letter-spacing: -0.03em;
 }
 
 /* Settings Section */
@@ -28,15 +29,16 @@
     padding: var(--spacing-md);
 }
 
-.section-title {
+.settings-section .section-title {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-family: var(--font-display);
     font-weight: 700;
     margin-bottom: var(--spacing-md);
     color: var(--text-primary);
+    letter-spacing: -0.02em;
 }
 
 /* Settings Item */
@@ -63,14 +65,15 @@
 }
 
 .settings-item-content h3 {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.25rem;
+    font-family: var(--font-display);
 }
 
 .settings-item-content p {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
 }
 
@@ -82,9 +85,10 @@
     border: none;
     border-radius: var(--radius-md);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+    font-family: var(--font-display);
 }
 
 .settings-btn:hover {
@@ -140,7 +144,7 @@
 }
 
 .settings-toggle input:checked+.toggle-slider {
-    background-color: var(--accent-color);
+    background: var(--accent-gradient);
 }
 
 .settings-toggle input:checked+.toggle-slider:before {
@@ -180,19 +184,19 @@
     }
 
     .settings-item-content h3 {
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
     }
 
     .settings-item-content p {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
     }
 
     .settings-btn {
         width: 100%;
     }
 
-    .section-title {
-        font-size: 1.125rem;
+    .settings-section .section-title {
+        font-size: 1rem;
     }
 }
 
@@ -205,8 +209,8 @@
         padding: var(--spacing-sm);
     }
 
-    .section-title {
-        font-size: 1rem;
+    .settings-section .section-title {
+        font-size: 0.9375rem;
     }
 
     .settings-item {
@@ -230,13 +234,14 @@
 
 .verify-btn {
     background: transparent;
-    border: 1px solid var(--accent-color);
-    color: var(--accent-color);
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
 }
 
 .verify-btn:hover {
-    background: var(--accent-color);
-    color: var(--accent-text);
+    background: var(--accent-gradient);
+    color: #fff;
+    border-color: transparent;
 }
 
 .settings-actions {
@@ -331,7 +336,7 @@
 
 .modal-actions .settings-btn {
     padding: 0.625rem 1.25rem;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
 }
 
 .modal-actions .settings-btn:not(.btn-danger) {

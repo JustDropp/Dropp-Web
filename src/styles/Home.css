@@ -1,4 +1,4 @@
-/* Home Page Styles */
+/* Home Page Styles — Editorial Theme */
 .home-page {
     min-height: 100vh;
     padding: var(--spacing-lg) var(--spacing-md);
@@ -16,7 +16,17 @@
     font-weight: 700;
     margin: 0 0 0.5rem 0;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+}
+
+.home-title .accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .home-subtitle {
@@ -47,23 +57,25 @@
     border: 1.5px solid var(--border-color);
     background: transparent;
     color: var(--text-primary);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
     white-space: nowrap;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
 }
 
 .category-pill:hover {
-    border-color: var(--text-primary);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
     transform: translateY(-1px);
 }
 
 .category-pill.active {
-    background: var(--accent-color);
-    color: var(--accent-text);
-    border-color: var(--accent-color);
+    background: var(--accent-gradient);
+    color: #fff;
+    border-color: transparent;
 }
 
 .home-content {
@@ -103,7 +115,7 @@
 
     .category-pill {
         padding: 0.5rem 1rem;
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
     }
 }
 

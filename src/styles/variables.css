@@ -1,5 +1,5 @@
 :root {
-    /* Color Palette - Enhanced Contrast (4.5:1 WCAG AA Compliant) */
+    /* Core Palette */
     --color-black: #000000;
     --color-white: #ffffff;
     --color-gray-50: #fafafa;
@@ -7,27 +7,32 @@
     --color-gray-200: #e5e5e5;
     --color-gray-300: #d4d4d4;
     --color-gray-400: #a3a3a3;
+    --color-gray-500: #737373;
     --color-gray-600: #525252;
-    /* 4.5:1 on white */
     --color-gray-700: #404040;
-    /* 7:1 on white */
     --color-gray-800: #262626;
-    /* 11:1 on white */
     --color-gray-900: #171717;
+    --color-gray-950: #0a0a0a;
 
-    /* Semantic Colors - WCAG AA Compliant */
+    /* Warm accent — used sparingly for serif italic highlights */
+    --color-cream: #e8dcc8;
+    --color-cream-muted: #c4b89a;
+
+    /* Semantic */
     --bg-primary: var(--color-white);
     --bg-secondary: var(--color-gray-50);
+    --bg-tertiary: var(--color-gray-100);
     --text-primary: var(--color-black);
-    --text-secondary: var(--color-gray-700);
-    /* Changed from gray-800 for better contrast */
+    --text-secondary: var(--color-gray-600);
+    --text-muted: var(--color-gray-500);
     --border-color: var(--color-gray-200);
     --accent-color: var(--color-black);
     --accent-text: var(--color-white);
 
     /* Typography */
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    --font-display: 'Outfit', var(--font-sans);
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Instrument Sans', var(--font-sans);
+    --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -38,59 +43,62 @@
 
     /* Layout */
     --container-width: 1200px;
-    --header-height: 80px;
+    --header-height: 72px;
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 16px;
     --radius-xl: 24px;
+    --radius-2xl: 32px;
 
-    /* Effects - Enhanced for Premium Feel */
+    /* Effects — intentionally minimal */
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(0, 0, 0, 0.05);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
     --backdrop-blur: 12px;
-    --gradient-primary: linear-gradient(135deg, #000000 0%, #333333 100%);
-    --gradient-subtle: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0) 100%);
 
-    /* Transitions - Smooth & Aesthetic */
+    /* Blue accent gradient */
+    --accent-gradient: linear-gradient(135deg, #0D36C7, #3887F8, #57A0FF);
+    --accent-blue: #3887F8;
+    --accent-blue-light: #57A0FF;
+    --accent-blue-dark: #0D36C7;
+
+    /* Transitions */
     --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Dark Theme - WCAG AA Compliant */
+/* Dark Theme */
 [data-theme='dark'] {
-    --bg-primary: var(--color-black);
-    --bg-secondary: var(--color-gray-900);
+    --bg-primary: var(--color-gray-950);
+    --bg-secondary: var(--color-black);
+    --bg-tertiary: var(--color-gray-900);
     --text-primary: var(--color-white);
     --text-secondary: var(--color-gray-400);
-    /* Changed for better contrast on dark */
-    --border-color: var(--color-gray-800);
+    --text-muted: var(--color-gray-500);
+    --border-color: rgba(255, 255, 255, 0.08);
     --accent-color: var(--color-white);
     --accent-text: var(--color-black);
 
-    --glass-bg: rgba(0, 0, 0, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --gradient-primary: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
-    --gradient-subtle: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0) 100%);
+    --glass-bg: rgba(10, 10, 10, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Auto Dark Mode (System Preference) */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) {
-        --bg-primary: var(--color-black);
-        --bg-secondary: var(--color-gray-900);
+        --bg-primary: var(--color-gray-950);
+        --bg-secondary: var(--color-black);
+        --bg-tertiary: var(--color-gray-900);
         --text-primary: var(--color-white);
         --text-secondary: var(--color-gray-400);
-        --border-color: var(--color-gray-800);
+        --text-muted: var(--color-gray-500);
+        --border-color: rgba(255, 255, 255, 0.08);
         --accent-color: var(--color-white);
         --accent-text: var(--color-black);
 
-        --glass-bg: rgba(0, 0, 0, 0.7);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        --gradient-primary: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
-        --gradient-subtle: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0) 100%);
+        --glass-bg: rgba(10, 10, 10, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.06);
+        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 }

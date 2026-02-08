@@ -2,11 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
-const Explore = () => {
+const ExploreNav = () => {
     // Placeholder data for masonry grid
     const items = Array.from({ length: 12 }).map((_, i) => ({
         id: i,
-        height: Math.floor(Math.random() * (400 - 200 + 1) + 200), // Random height between 200 and 400
+        height: Math.floor(Math.random() * (400 - 200 + 1) + 200),
         user: `User ${i + 1}`,
         product: `Product ${i + 1}`
     }));
@@ -21,8 +21,26 @@ const Explore = () => {
         >
             <div className="container">
                 <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
-                    <h1 className="text-gradient" style={{ fontSize: '3rem', marginBottom: 'var(--spacing-sm)',  marginTop: 'var(--spacing-lg)' }}>Explore Collections</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>Discover what's trending in the community.</p>
+                    <h1 style={{
+                        fontSize: '3rem',
+                        marginBottom: 'var(--spacing-sm)',
+                        marginTop: 'var(--spacing-lg)',
+                        fontFamily: 'var(--font-display)',
+                        fontWeight: '700',
+                        letterSpacing: '-0.03em',
+                        color: 'var(--text-primary)',
+                    }}>
+                        Explore <span style={{
+                            fontFamily: 'var(--font-serif)',
+                            fontStyle: 'italic',
+                            fontWeight: '400',
+                            background: 'var(--accent-gradient)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                        }}>collections.</span>
+                    </h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem' }}>Discover what's trending in the community.</p>
                 </div>
 
                 <div style={{
@@ -37,7 +55,7 @@ const Explore = () => {
                                 breakInside: 'avoid',
                                 marginBottom: 'var(--spacing-md)',
                                 backgroundColor: 'var(--bg-secondary)',
-                                borderRadius: 'var(--radius-md)',
+                                borderRadius: 'var(--radius-lg)',
                                 overflow: 'hidden',
                                 position: 'relative',
                                 height: `${item.height}px`,
@@ -45,20 +63,17 @@ const Explore = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}
-                            className="group"
                         >
-                            {/* Placeholder Image */}
                             <img
                                 src={`https://picsum.photos/seed/${item.id}/400/${item.height}`}
                                 alt="Random"
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
 
-                            {/* Overlay */}
                             <div style={{
                                 position: 'absolute',
                                 inset: 0,
-                                background: 'rgba(0,0,0,0.4)',
+                                background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)',
                                 opacity: 0,
                                 transition: 'opacity 0.3s',
                                 display: 'flex',
@@ -70,20 +85,23 @@ const Explore = () => {
                                 onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
                                 onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
                             >
-                                <div style={{ fontWeight: '600' }}>{item.product}</div>
-                                <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>by {item.user}</div>
+                                <div style={{ fontWeight: '600', fontFamily: 'var(--font-display)' }}>{item.product}</div>
+                                <div style={{ fontSize: '0.8125rem', opacity: 0.8 }}>by {item.user}</div>
                                 <button style={{
                                     marginTop: 'var(--spacing-xs)',
-                                    backgroundColor: 'white',
-                                    color: 'black',
+                                    background: 'linear-gradient(135deg, #0D36C7, #3887F8, #57A0FF)',
+                                    color: 'white',
                                     padding: '8px 16px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '0.875rem',
+                                    borderRadius: 'var(--radius-md)',
+                                    fontSize: '0.8125rem',
                                     fontWeight: '600',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '4px',
-                                    width: 'fit-content'
+                                    width: 'fit-content',
+                                    fontFamily: 'var(--font-display)',
+                                    border: 'none',
+                                    cursor: 'pointer',
                                 }}>
                                     Get Link <ArrowUpRight size={14} />
                                 </button>
@@ -96,4 +114,4 @@ const Explore = () => {
     );
 };
 
-export default Explore;
+export default ExploreNav;

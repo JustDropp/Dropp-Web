@@ -22,7 +22,7 @@ const Home = () => {
             transition={{ duration: 0.5 }}
         >
             <div className="home-header">
-                <h1 className="home-title">Discover Collections</h1>
+                <h1 className="home-title">Discover <span className="accent">collections.</span></h1>
                 <p className="home-subtitle">Curated inspiration from creators worldwide</p>
             </div>
 

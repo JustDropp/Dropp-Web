@@ -1,4 +1,4 @@
-/* Notifications Page Styles */
+/* Notifications Page Styles — Editorial Theme */
 
 .notifications-page {
     padding: var(--spacing-md);
@@ -21,8 +21,9 @@
 .notifications-title {
     font-size: 2rem;
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text-primary);
+    letter-spacing: -0.03em;
 }
 
 /* Filters */
@@ -38,9 +39,10 @@
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+    font-family: var(--font-display);
 }
 
 .filter-btn:hover {
@@ -49,9 +51,9 @@
 }
 
 .filter-btn.active {
-    background: var(--accent-color);
-    color: var(--accent-text);
-    border-color: var(--accent-color);
+    background: var(--accent-gradient);
+    color: #fff;
+    border-color: transparent;
 }
 
 /* Notifications List */
@@ -81,12 +83,12 @@
 }
 
 .notification-item.unread {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: var(--accent-color);
+    background: rgba(56, 135, 248, 0.03);
+    border-color: rgba(56, 135, 248, 0.15);
 }
 
 [data-theme='dark'] .notification-item.unread {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(56, 135, 248, 0.05);
 }
 
 /* Notification Icon */
@@ -130,12 +132,14 @@
 .notification-comment {
     color: var(--text-secondary);
     font-style: italic;
+    font-family: var(--font-serif);
     margin-top: 0.5rem !important;
 }
 
 .notification-time {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
+    font-family: var(--font-display);
 }
 
 /* Unread Indicator */
@@ -146,7 +150,7 @@
     transform: translateY(-50%);
     width: 8px;
     height: 8px;
-    background: var(--accent-color);
+    background: var(--accent-gradient);
     border-radius: 50%;
 }
 
@@ -188,9 +192,10 @@
     border-radius: var(--radius-md);
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+    font-family: var(--font-display);
 }
 
 .action-btn:hover {
@@ -240,7 +245,7 @@
     }
 
     .notification-time {
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
     }
 }
 

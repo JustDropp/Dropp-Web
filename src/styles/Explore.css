@@ -1,4 +1,4 @@
-/* Explore Page Styles */
+/* Explore Page Styles — Editorial Theme */
 .explore-page {
     min-height: 100vh;
     padding: var(--spacing-lg) var(--spacing-md);
@@ -18,7 +18,17 @@
     font-weight: 700;
     margin: 0 0 var(--spacing-md) 0;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+}
+
+.explore-title .accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .explore-search {
@@ -34,12 +44,12 @@
 }
 
 .explore-search:focus-within {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(56, 135, 248, 0.1);
 }
 
 [data-theme='dark'] .explore-search:focus-within {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(56, 135, 248, 0.15);
 }
 
 .explore-search svg {
@@ -100,14 +110,15 @@
 .featured-badge {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(56, 135, 248, 0.3);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     margin-bottom: var(--spacing-sm);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display);
 }
 
 .featured-content h2 {
@@ -115,7 +126,7 @@
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
 }
 
 .featured-content p {
@@ -126,20 +137,20 @@
 
 .explore-collection-btn {
     padding: 0.875rem 1.75rem;
-    background: white;
-    color: black;
+    background: var(--accent-gradient);
+    color: #fff;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
 }
 
 .explore-collection-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(56, 135, 248, 0.3);
 }
 
 .explore-content {
@@ -221,7 +232,7 @@
 
     .explore-collection-btn {
         padding: 0.75rem 1.5rem;
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
     }
 
     .explore-search {

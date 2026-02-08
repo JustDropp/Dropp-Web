@@ -78,7 +78,7 @@ const Creators = () => {
         >
             <div className="creators-container">
                 <div className="creators-header">
-                    <h1 className="creators-title">Discover Creators</h1>
+                    <h1 className="creators-title">Discover <span className="accent">creators.</span></h1>
                     <p className="creators-subtitle">
                         Follow curators who share your interests and discover amazing collections
                     </p>

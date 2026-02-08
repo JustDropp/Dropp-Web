@@ -7,20 +7,24 @@ import AppDownload from '../components/AppDownload';
 import VideoDemo from '../components/VideoDemo';
 import CreatorSpotlight from '../components/CreatorSpotlight';
 import { motion } from 'framer-motion';
+import { useLandingTheme } from '../hooks/useLandingTheme';
 import '../styles/Landing.css';
 
 const Landing = () => {
+    const t = useLandingTheme();
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
+            style={{ background: t.bg }}
         >
             <Hero />
             <VideoDemo />
-            <CreatorSpotlight />
             <Features />
+            <CreatorSpotlight />
             <Reviews />
             <AppDownload />
             <WaitlistForm />

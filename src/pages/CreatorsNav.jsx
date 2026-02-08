@@ -10,8 +10,26 @@ const CreatorsNav = () => {
             style={{ paddingTop: 'var(--header-height)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
             <div className="container text-center">
-                <h1 className="text-gradient" style={{ fontSize: '3rem', marginBottom: '1rem' }}>Our Creators</h1>
-                <p style={{ color: 'var(--text-secondary)' }}>Coming soon. Discover the best curators on Dropp.</p>
+                <h1 style={{
+                    fontSize: '3rem',
+                    marginBottom: '1rem',
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: '700',
+                    letterSpacing: '-0.03em',
+                    color: 'var(--text-primary)',
+                }}>
+                    Our{' '}
+                    <span style={{
+                        fontFamily: 'var(--font-serif)',
+                        fontStyle: 'italic',
+                        fontWeight: '400',
+                        background: 'var(--accent-gradient)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    }}>creators.</span>
+                </h1>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1.125rem' }}>Coming soon. Discover the best curators on Dropp.</p>
             </div>
         </motion.div>
     );
