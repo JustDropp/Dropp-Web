@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import MasonryGrid from '../components/MasonryGrid';
+import CollectionCard from '../components/CollectionCard';
+import { ShimmerCollectionGrid } from '../components/Shimmer';
 import FloatingActionButton from '../components/FloatingActionButton';
 import CollectionService from '../core/services/CollectionService';
 import { categories } from '../data/mockData';
@@ -59,9 +60,16 @@ const Home = () => {
 
             <div className="home-content">
                 {loading ? (
-                    <div className="loading-state">Loading collections...</div>
+                    <ShimmerCollectionGrid count={8} />
                 ) : (
-                    <MasonryGrid collections={collections} />
+                    <div className="pinterest-grid">
+                        {collections.map((collection) => (
+                            <CollectionCard
+                                key={collection._id || collection.id}
+                                collection={collection}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
 

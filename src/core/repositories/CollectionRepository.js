@@ -25,6 +25,18 @@ class CollectionRepository {
     }
 
     /**
+     * Get a public collection by ID (no auth required)
+     * @param {string} id - Collection ID
+     * @returns {Promise<Object>}
+     */
+    async getPublicCollection(id) {
+        const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.COLLECTION_BY_ID}/${id}`, {
+            headers: { Authorization: undefined }
+        });
+        return response.data;
+    }
+
+    /**
      * Create a new collection
      * @param {Object} data - Collection data {name, desc}
      * @returns {Promise<Object>}

@@ -33,6 +33,20 @@ class CollectionService {
     }
 
     /**
+     * Get a public collection by ID (no auth required)
+     * @param {string} id - Collection ID
+     * @returns {Promise<Object>}
+     */
+    async getPublicCollection(id) {
+        try {
+            return await CollectionRepository.getPublicCollection(id);
+        } catch (error) {
+            console.error('CollectionService.getPublicCollection error:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Create a new collection
      * @param {string} name - Collection name
      * @param {string} desc - Collection description

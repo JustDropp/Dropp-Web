@@ -68,6 +68,32 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * Search users by query
+     * @param {string} query - Search query
+     * @returns {Promise<Array>}
+     */
+    async searchUsers(query) {
+        try {
+            return await UserRepository.searchUsers(query);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get user profile by username
+     * @param {string} username - Username to fetch
+     * @returns {Promise<Object>}
+     */
+    async getUserByUsername(username) {
+        try {
+            return await UserRepository.getUserByUsername(username);
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserService();

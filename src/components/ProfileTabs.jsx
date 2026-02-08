@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Film, Tag, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_CONFIG } from '../core/config/apiConfig';
+import { useData } from '../contexts/DataContext';
+import CollectionService from '../core/services/CollectionService';
+import CollectionCard from './CollectionCard';
+import EditCollectionModal from './EditCollectionModal';
+import Snackbar from './Snackbar';
 import '../styles/Profile.css';
 
-const ProfileTabs = ({ collections, activeTab: initialTab = 'collections' }) => {
+const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [sharePopupId, setSharePopupId] = useState(null);
+    const [copied, setCopied] = useState(false);
+    const [editingCollection, setEditingCollection] = useState(null);
+    const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
     const navigate = useNavigate();
+    const { removeCollection, updateCollection } = useData();
 
     const tabs = [
         { id: 'collections', label: 'Collections', icon: Grid },
@@ -15,49 +26,129 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections' }) => 
         { id: 'saved', label: 'Saved', icon: Bookmark }
     ];
 
-    const handleCollectionClick = (collectionId) => {
-        navigate(`/collection/${collectionId}`);
+    // Close popups when clicking outside
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setOpenMenuId(null);
+            setSharePopupId(null);
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    const handleCollectionClick = (collectionId, e) => {
+        if (e.target.closest('.board-actions') || e.target.closest('.share-popup')) return;
+        navigate(`/c/${collectionId}`);
+    };
+
+    const handleShareClick = (e, collectionId) => {
+        e.stopPropagation();
+        setOpenMenuId(null);
+        setSharePopupId(sharePopupId === collectionId ? null : collectionId);
+        setCopied(false);
+    };
+
+    const handleCopyLink = (e, collection) => {
+        e.stopPropagation();
+        const collectionId = collection._id || collection.id;
+        // Include base path and hash for HashRouter
+        const basePath = import.meta.env.BASE_URL || '/';
+        const url = `${window.location.origin}${basePath}#/c/${collectionId}`;
+        navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => {
+            setSharePopupId(null);
+            setCopied(false);
+        }, 1500);
+    };
+
+    const handleMenuToggle = (e, collectionId) => {
+        e.stopPropagation();
+        setSharePopupId(null);
+        setOpenMenuId(openMenuId === collectionId ? null : collectionId);
+    };
+
+    const handleEdit = (e, collection) => {
+        e.stopPropagation();
+        setOpenMenuId(null);
+        setEditingCollection(collection);
+    };
+
+    const handleDeleteClick = (e, collection) => {
+        e.stopPropagation();
+        setOpenMenuId(null);
+        setSnackbar({
+            show: true,
+            message: `Delete "${collection.title}"?`,
+            type: 'warning',
+            action: {
+                label: 'Delete',
+                onClick: () => confirmDelete(collection)
+            }
+        });
+    };
+
+    const confirmDelete = async (collection) => {
+        try {
+            const collectionId = collection._id || collection.id;
+            await CollectionService.deleteCollection(collectionId);
+            removeCollection(collectionId);
+            setSnackbar({ show: true, message: 'Collection deleted', type: 'success' });
+        } catch (error) {
+            console.error('Failed to delete:', error);
+            setSnackbar({ show: true, message: 'Failed to delete collection', type: 'error' });
+        }
+    };
+
+    const handleEditUpdate = (updatedCollection) => {
+        const collectionId = editingCollection._id || editingCollection.id;
+        updateCollection(collectionId, updatedCollection);
+        setEditingCollection(null);
+        if (onRefresh) onRefresh();
+    };
+
+    // Generate placeholder images for Pinterest-style grid
+    const getGridImages = (collection) => {
+        const mainImage = collection.displayImageUrl?.startsWith('http')
+            ? collection.displayImageUrl
+            : API_CONFIG.BASE_URL + (collection.displayImageUrl || '/images/book.svg');
+
+        // For now, use the same image but we could expand to multiple
+        return [mainImage, mainImage, mainImage];
     };
 
     const renderContent = () => {
         switch (activeTab) {
             case 'collections':
                 return (
-                    <div className="profile-grid">
+                    <div className="pinterest-grid">
                         {collections && collections.length > 0 ? (
-                            collections.map((collection) => {
-                                const displayImage = collection.displayImageUrl?.startsWith('http')
-                                    ? collection.displayImageUrl
-                                    : API_CONFIG.BASE_URL + collection.displayImageUrl;
-
-                                return (
-                                    <div
-                                        key={collection._id}
-                                        className="profile-grid-item"
-                                        onClick={() => handleCollectionClick(collection._id)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <img
-                                            src={displayImage}
-                                            alt={collection.title}
-                                            onError={(e) => {
-                                                e.target.src = API_CONFIG.BASE_URL + '/images/book.svg';
-                                            }}
-                                        />
-                                        <div className="profile-grid-overlay">
-                                            <div className="collection-info">
-                                                <h4>{collection.title}</h4>
-                                                {collection.desc && <p>{collection.desc}</p>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })
+                            collections.map((collection) => (
+                                <CollectionCard
+                                    key={collection._id || collection.id}
+                                    collection={collection}
+                                    isOwner={true}
+                                    onEdit={(c) => {
+                                        setEditingCollection(c);
+                                    }}
+                                    onDelete={(c) => {
+                                        setSnackbar({
+                                            show: true,
+                                            message: `Delete "${c.title}"?`,
+                                            type: 'warning',
+                                            action: {
+                                                label: 'Delete',
+                                                onClick: () => confirmDelete(c)
+                                            }
+                                        });
+                                    }}
+                                />
+                            ))
                         ) : (
                             <div className="profile-empty-state">
                                 <Grid size={48} />
                                 <p>No collections yet</p>
-                                <span>Create your first collection to get started</span>
+                                <span style={{ display: 'block', marginTop: '0.5rem' }}>Create your first collection to get started</span>
                             </div>
                         )}
                     </div>
@@ -93,24 +184,43 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections' }) => 
     };
 
     return (
-        <div className="profile-tabs-container">
-            <div className="profile-tabs">
-                {tabs.map(({ id, label, icon: Icon }) => (
-                    <button
-                        key={id}
-                        className={`profile-tab ${activeTab === id ? 'active' : ''}`}
-                        onClick={() => setActiveTab(id)}
-                    >
-                        <Icon size={20} />
-                        <span>{label}</span>
-                    </button>
-                ))}
+        <>
+            <div className="profile-tabs-container">
+                <div className="profile-tabs">
+                    {tabs.map(({ id, label, icon: Icon }) => (
+                        <button
+                            key={id}
+                            className={`profile-tab ${activeTab === id ? 'active' : ''}`}
+                            onClick={() => setActiveTab(id)}
+                        >
+                            <Icon size={20} />
+                            <span>{label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                <div className="profile-tab-content">
+                    {renderContent()}
+                </div>
             </div>
 
-            <div className="profile-tab-content">
-                {renderContent()}
-            </div>
-        </div>
+            {editingCollection && (
+                <EditCollectionModal
+                    isOpen={!!editingCollection}
+                    onClose={() => setEditingCollection(null)}
+                    collection={editingCollection}
+                    onUpdate={handleEditUpdate}
+                />
+            )}
+
+            <Snackbar
+                isVisible={snackbar.show}
+                message={snackbar.message}
+                type={snackbar.type}
+                action={snackbar.action}
+                onClose={() => setSnackbar({ ...snackbar, show: false })}
+            />
+        </>
     );
 };
 

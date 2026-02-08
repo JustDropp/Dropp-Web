@@ -3,15 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, AlertCircle, Info } from 'lucide-react';
 import '../styles/Snackbar.css';
 
-const Snackbar = ({ message, type = 'success', isVisible, onClose, duration = 3000 }) => {
+const Snackbar = ({ message, type = 'success', isVisible, onClose, duration = 4000, action }) => {
     useEffect(() => {
-        if (isVisible) {
+        // Don't auto-close if there's an action (user needs to confirm)
+        if (isVisible && !action) {
             const timer = setTimeout(() => {
                 onClose();
             }, duration);
             return () => clearTimeout(timer);
         }
-    }, [isVisible, duration, onClose]);
+        // If action is present, give more time
+        if (isVisible && action) {
+            const timer = setTimeout(() => {
+                onClose();
+            }, 6000);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible, duration, onClose, action]);
 
     const getIcon = () => {
         switch (type) {
@@ -20,6 +28,13 @@ const Snackbar = ({ message, type = 'success', isVisible, onClose, duration = 30
             case 'warning': return <AlertCircle size={20} />;
             default: return <Info size={20} />;
         }
+    };
+
+    const handleAction = () => {
+        if (action?.onClick) {
+            action.onClick();
+        }
+        onClose();
     };
 
     return (
@@ -34,6 +49,14 @@ const Snackbar = ({ message, type = 'success', isVisible, onClose, duration = 30
                 >
                     <span className="snackbar-icon">{getIcon()}</span>
                     <span className="snackbar-message">{message}</span>
+                    {action && (
+                        <button
+                            className="snackbar-action"
+                            onClick={handleAction}
+                        >
+                            {action.label}
+                        </button>
+                    )}
                     <button className="snackbar-close" onClick={onClose}>&times;</button>
                 </motion.div>
             )}

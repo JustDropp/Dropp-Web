@@ -79,6 +79,34 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Search users by query
+     * @param {string} query - Search query
+     * @returns {Promise<Array>}
+     */
+    async searchUsers(query) {
+        try {
+            const response = await apiClient.get(`/user/search/${encodeURIComponent(query)}`);
+            return response.data?.results || [];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get user profile by username
+     * @param {string} username - Username to fetch
+     * @returns {Promise<Object>}
+     */
+    async getUserByUsername(username) {
+        try {
+            const response = await apiClient.get(`/user/profile/${encodeURIComponent(username)}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

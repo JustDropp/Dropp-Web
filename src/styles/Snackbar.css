@@ -80,6 +80,32 @@
     color: white;
 }
 
+.snackbar-action {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.snackbar-action:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.snackbar-warning .snackbar-action {
+    background: #ef4444;
+    border-color: #ef4444;
+}
+
+.snackbar-warning .snackbar-action:hover {
+    background: #dc2626;
+}
+
 @media (max-width: 768px) {
     .snackbar {
         bottom: 80px;

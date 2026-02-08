@@ -106,7 +106,7 @@ const ProfileDemo = () => {
                     gap: 'var(--spacing-md)'
                 }}>
                     {collections.map((collection) => (
-                        <Link to={`/collection/${collection.id}`} key={collection.id}>
+                        <Link to={`/c/${collection.id}`} key={collection.id}>
                             <motion.div
                                 whileHover={{ y: -5 }}
                                 className="glass-panel"

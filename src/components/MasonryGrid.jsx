@@ -7,7 +7,7 @@ const MasonryGrid = ({ collections, columns = { desktop: 4, tablet: 3, mobile: 2
     const navigate = useNavigate();
 
     const handleCollectionClick = (collectionId) => {
-        navigate(`/collection/${collectionId}`);
+        navigate(`/c/${collectionId}`);
     };
 
     return (

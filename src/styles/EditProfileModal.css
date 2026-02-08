@@ -217,9 +217,9 @@
     padding: 12px 32px;
     border-radius: var(--radius-md);
     border: none;
-    background: var(--gradient-primary);
+    background: var(--accent-gradient);
     /* Use theme gradient */
-    color: #fff;
+    color: #fff !important;
     /* Always white on gradient */
     font-weight: 600;
     font-size: 1rem;
@@ -230,13 +230,13 @@
 
 /* In dark mode, ensure text is readable on white gradient */
 [data-theme='dark'] .save-btn {
-    color: #000;
+    color: #fff;
 }
 
 /* Handle system dark preference if not manually toggled */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) .save-btn {
-        color: #000;
+        color: #fff;
     }
 }
 

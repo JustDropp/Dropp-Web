@@ -1,47 +1,62 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import CollectionService from '../core/services/CollectionService';
 
 const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
-    // Mock User Data
-    const [user] = useState({
-        username: "alex_style",
-        name: "Alex Morgan",
-        bio: "Minimalist aesthetics | Tech & Lifestyle | NYC",
-        avatar: "https://i.pravatar.cc/300?u=alex",
-        followers: "12.4k",
-        following: "450",
-        location: "New York, NY",
-        website: "alex.design"
-    });
+    const [collections, setCollections] = useState([]);
+    const [collectionsLoading, setCollectionsLoading] = useState(false);
 
-    // Mock Collections Data
-    const [collections] = useState([
-        { id: 1, title: "Desk Setup", items: 12, image: "https://picsum.photos/seed/desk/400/400" },
-        { id: 2, title: "Summer Essentials", items: 8, image: "https://picsum.photos/seed/summer/400/400" },
-        { id: 3, title: "Camera Gear", items: 5, image: "https://picsum.photos/seed/camera/400/400" },
-        { id: 4, title: "Living Room", items: 15, image: "https://picsum.photos/seed/living/400/400" },
-        { id: 5, title: "Everyday Carry", items: 6, image: "https://picsum.photos/seed/edc/400/400" },
-        { id: 6, title: "Coffee Station", items: 9, image: "https://picsum.photos/seed/coffee/400/400" },
-    ]);
+    // Fetch collections from API
+    const fetchCollections = useCallback(async () => {
+        try {
+            setCollectionsLoading(true);
+            const data = await CollectionService.getCollections();
+            // Sort by createdAt descending (newest first)
+            const sortedCollections = (data || []).sort((a, b) => {
+                const dateA = new Date(a.createdAt || 0);
+                const dateB = new Date(b.createdAt || 0);
+                return dateB - dateA;
+            });
+            setCollections(sortedCollections);
+            return sortedCollections;
+        } catch (error) {
+            console.error('Failed to fetch collections:', error);
+            return [];
+        } finally {
+            setCollectionsLoading(false);
+        }
+    }, []);
 
-    // Mock Products Data (Helper function to generate)
-    const getProductsForCollection = (collectionId) => {
-        return Array.from({ length: 8 }).map((_, i) => ({
-            id: `${collectionId}-${i}`,
-            name: `Product Item ${i + 1}`,
-            brand: "Brand Name",
-            price: "$129.00",
-            image: `https://picsum.photos/seed/prod${i}${collectionId}/400/500`
-        }));
-    };
+    // Add a new collection to the list (optimistic update)
+    const addCollection = useCallback((newCollection) => {
+        setCollections(prev => [newCollection, ...prev]);
+    }, []);
+
+    // Remove a collection from the list
+    const removeCollection = useCallback((collectionId) => {
+        setCollections(prev => prev.filter(c => c._id !== collectionId && c.id !== collectionId));
+    }, []);
+
+    // Update a collection in the list
+    const updateCollection = useCallback((collectionId, updatedData) => {
+        setCollections(prev => prev.map(c =>
+            (c._id === collectionId || c.id === collectionId)
+                ? { ...c, ...updatedData }
+                : c
+        ));
+    }, []);
 
     const value = {
-        user,
         collections,
-        getProductsForCollection
+        collectionsLoading,
+        fetchCollections,
+        addCollection,
+        removeCollection,
+        updateCollection,
+        setCollections
     };
 
     return (

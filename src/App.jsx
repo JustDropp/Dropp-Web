@@ -17,6 +17,7 @@ import Profile from './pages/Profile';
 import ProfileDemo from './pages/ProfileDemo';
 import Collection from './pages/Collection';
 import CollectionDetailPage from './pages/CollectionDetailPage';
+import UserProfilePage from './pages/UserProfilePage';
 import Settings from './pages/Settings';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
@@ -83,11 +84,8 @@ const AnimatedRoutes = () => {
         <Route path="/creators" element={isAuthenticated ? <Creators /> : <CreatorsNav />} />
         <Route path="/about" element={isAuthenticated ? <About /> : <AboutNav />} />
         <Route path="/profile/:username" element={isAuthenticated ? <Profile /> : <ProfileDemo />} />
-        <Route path="/collection/:id" element={
-          <ProtectedRoute>
-            <CollectionDetailPage />
-          </ProtectedRoute>
-        } />
+        <Route path="/c/:id" element={<CollectionDetailPage />} />
+        <Route path="/user/:username" element={<UserProfilePage />} />
         <Route path="/settings" element={
           <ProtectedRoute>
             <Settings />

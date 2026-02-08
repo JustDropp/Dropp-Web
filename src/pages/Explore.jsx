@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
-import MasonryGrid from '../components/MasonryGrid';
+import { Search, Grid } from 'lucide-react';
 import FloatingActionButton from '../components/FloatingActionButton';
 import CollectionService from '../core/services/CollectionService';
+import CollectionCard from '../components/CollectionCard';
+import { ShimmerCollectionGrid } from '../components/Shimmer';
 import { categories } from '../data/mockData';
 import '../styles/Explore.css';
 
@@ -70,7 +71,7 @@ const Explore = () => {
                 ))}
             </div>
 
-            {featuredCollection && (
+            {featuredCollection && !loading && (
                 <div className="featured-collection">
                     <img src={featuredCollection.displayImageUrl} alt={featuredCollection.title} />
                     <div className="featured-overlay">
@@ -85,9 +86,22 @@ const Explore = () => {
 
             <div className="explore-content">
                 {loading ? (
-                    <div className="loading-state">Loading collections...</div>
+                    <ShimmerCollectionGrid count={8} />
                 ) : (
-                    <MasonryGrid collections={collections} />
+                    <div className="pinterest-grid">
+                        {collections.map((collection) => (
+                            <CollectionCard
+                                key={collection._id || collection.id}
+                                collection={collection}
+                            />
+                        ))}
+                        {collections.length === 0 && (
+                            <div className="no-results">
+                                <Grid size={48} />
+                                <p>No collections found</p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
 

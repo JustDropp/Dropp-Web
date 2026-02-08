@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CollectionService from '../core/services/CollectionService';
+import { useData } from '../contexts/DataContext';
 import Snackbar from './Snackbar';
 import '../styles/CreateCollectionModal.css';
 
@@ -12,6 +13,7 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
     const navigate = useNavigate();
+    const { addCollection, fetchCollections } = useData();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,26 +23,49 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
             return;
         }
 
+        if (!desc.trim()) {
+            setSnackbar({ show: true, message: 'Collection description is required', type: 'error' });
+            return;
+        }
+
         setLoading(true);
         try {
             const response = await CollectionService.createCollection(name, desc);
             setSnackbar({ show: true, message: 'Collection created successfully!', type: 'success' });
 
+            // Extract collection data from response
+            const newCollection = response?.result || response;
+            const collectionId = newCollection?._id || newCollection?.id;
+
+            // Add to global state immediately for real-time update
+            if (newCollection) {
+                addCollection(newCollection);
+            }
+
             // Reset form
             setName('');
             setDesc('');
 
-            // Close modal and navigate after a short delay
+            // Close modal and navigate
             setTimeout(() => {
                 onClose();
-                // Navigate to the collection detail page if we have the ID
-                // For now, we'll just close and let the user see it in their profile
-            }, 1000);
+                // Also refresh to ensure backend sync
+                fetchCollections();
+                if (collectionId) {
+                    navigate(`/c/${collectionId}`);
+                } else {
+                    navigate('/profile/me');
+                }
+            }, 800);
         } catch (error) {
             console.error('Failed to create collection:', error);
+            const errorMessage = error.response?.data?.message
+                || error.response?.data?.error
+                || error.message
+                || 'Failed to create collection. Please try again.';
             setSnackbar({
                 show: true,
-                message: error.message || 'Failed to create collection. Please try again.',
+                message: errorMessage,
                 type: 'error'
             });
         } finally {
@@ -102,12 +127,12 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="collection-desc">Description</label>
+                            <label htmlFor="collection-desc">Description *</label>
                             <textarea
                                 id="collection-desc"
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
-                                placeholder="Enter collection description (optional)"
+                                placeholder="Enter collection description"
                                 disabled={loading}
                                 rows={4}
                                 maxLength={500}

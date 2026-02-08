@@ -14,7 +14,7 @@
 }
 
 .create-collection-modal {
-    background: var(--glass-bg);
+    background: var(--bg-primary);
     backdrop-filter: blur(var(--backdrop-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
