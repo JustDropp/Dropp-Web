@@ -2,11 +2,14 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Link as LinkIcon, Grid } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
+import { getUserByUsername } from '../data/mockData';
 
 const ProfileDemo = () => {
     const { username } = useParams();
-    const { user, collections } = useData();
+    const user = getUserByUsername(username);
+    const collections = user?.collections || [];
+
+    if (!user) return <div className="text-center p-10">User not found</div>;
 
     return (
         <motion.div
