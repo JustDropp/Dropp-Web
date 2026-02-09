@@ -10,7 +10,9 @@ export const API_CONFIG = {
         UPDATE_PASSWORD: '/user/update-password',
         DELETE_ACCOUNT: '/user/delete',
         COLLECTIONS: '/c',
-        COLLECTION_BY_ID: '/c',
+        COLLECTION_BY_ID: '/c/getCollectionById',
+        EXPLORE: '/c/exploreCollections',
+        USERS: '/user/',
     },
     TIMEOUT: 10000,
 };

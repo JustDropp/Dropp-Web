@@ -91,3 +91,91 @@
     border-radius: var(--radius-lg);
     overflow: hidden;
 }
+
+/* Creator Card Shimmer */
+.shimmer-creator-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+}
+
+.shimmer-creator-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.shimmer-creator-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.shimmer-creator-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.shimmer-stat-item {
+    width: 60px;
+    height: 40px;
+    border-radius: var(--radius-md);
+}
+
+.shimmer-btn {
+    width: 100px;
+    height: 40px;
+    border-radius: 9999px;
+}
+
+/* Collection Detail Shimmer */
+.shimmer-collection-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg) var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.shimmer-back-link {
+    border-radius: 4px;
+}
+
+.shimmer-creator-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+}
+
+.shimmer-avatar-lg {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.shimmer-creator-detail-info {
+    flex: 1;
+}
+
+.shimmer-follow-btn {
+    border-radius: var(--radius-lg);
+}
+
+.shimmer-collection-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.shimmer-content-area {
+    width: 100%;
+}

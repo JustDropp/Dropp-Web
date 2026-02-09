@@ -19,6 +19,20 @@ class CollectionService {
     }
 
     /**
+     * Get explore collections (public feed)
+     * @returns {Promise<Array>}
+     */
+    async getExploreCollections() {
+        try {
+            const response = await CollectionRepository.getExploreCollections();
+            return response.result || [];
+        } catch (error) {
+            console.error('CollectionService.getExploreCollections error:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Get a specific collection by ID
      * @param {string} id - Collection ID
      * @returns {Promise<Object>}
@@ -48,18 +62,18 @@ class CollectionService {
 
     /**
      * Create a new collection
-     * @param {string} name - Collection name
+     * @param {string} title - Collection name
      * @param {string} desc - Collection description
      * @returns {Promise<Object>}
      */
-    async createCollection(name, desc) {
+    async createCollection(title, desc) {
         try {
-            if (!name || !name.trim()) {
-                throw new Error('Collection name is required');
+            if (!title || !title.trim()) {
+                throw new Error('Collection title is required');
             }
 
             const response = await CollectionRepository.createCollection({
-                name: name.trim(),
+                title: title.trim(),
                 desc: desc?.trim() || ''
             });
 
@@ -73,18 +87,18 @@ class CollectionService {
     /**
      * Update an existing collection
      * @param {string} id - Collection ID
-     * @param {string} name - Updated collection name
+     * @param {string} title - Updated collection name
      * @param {string} desc - Updated collection description
      * @returns {Promise<Object>}
      */
-    async updateCollection(id, name, desc) {
+    async updateCollection(id, title, desc) {
         try {
-            if (!name || !name.trim()) {
-                throw new Error('Collection name is required');
+            if (!title || !title.trim()) {
+                throw new Error('Collection title is required');
             }
 
             const response = await CollectionRepository.updateCollection(id, {
-                name: name.trim(),
+                title: title.trim(),
                 desc: desc?.trim() || ''
             });
 
@@ -105,6 +119,36 @@ class CollectionService {
             return await CollectionRepository.deleteCollection(id);
         } catch (error) {
             console.error('CollectionService.deleteCollection error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get collections by user ID
+     * @param {string} userId - User ID
+     * @returns {Promise<Array>}
+     */
+    async getUserCollections(userId) {
+        try {
+            const response = await CollectionRepository.getUserCollections(userId);
+            return response.result || [];
+        } catch (error) {
+            console.error('CollectionService.getUserCollections error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Search collections by query
+     * @param {string} query - Search query
+     * @returns {Promise<Array>}
+     */
+    async searchCollections(query) {
+        try {
+            const response = await CollectionRepository.searchCollections(query);
+            return response.result || [];
+        } catch (error) {
+            console.error('CollectionService.searchCollections error:', error);
             throw error;
         }
     }

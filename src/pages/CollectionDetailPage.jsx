@@ -7,15 +7,17 @@ import {
     MoreHorizontal,
     Edit,
     Trash2,
-    Loader,
     Plus,
-    Bookmark,
-    UserPlus
+    Heart,
+    UserPlus,
+    UserCheck,
+    Package
 } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import EditCollectionModal from '../components/EditCollectionModal';
 import Snackbar from '../components/Snackbar';
 import Footer from '../components/Footer';
+import { ShimmerCollectionDetail } from '../components/Shimmer';
 import { useAuth } from '../contexts/AuthContext';
 import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/CollectionDetailPage.css';
@@ -29,10 +31,17 @@ const CollectionDetailPage = () => {
     const [showMenu, setShowMenu] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
-    const [isSaved, setIsSaved] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+    const [isFollowing, setIsFollowing] = useState(false);
 
-    // Determine if current user is the owner
-    const isOwner = isAuthenticated && collection?.userId === user?.id;
+    // Get creator info from collection
+    const creator = collection?.createdBy;
+
+    // Determine if current user is the owner - STRICT check
+    const currentUserId = user?.id || user?._id;
+    const collectionOwnerId = collection?.createdBy?._id || collection?.createdBy?.id;
+    const isOwner = isAuthenticated && currentUserId && collectionOwnerId && (currentUserId === collectionOwnerId);
 
     useEffect(() => {
         fetchCollection();
@@ -47,7 +56,9 @@ const CollectionDetailPage = () => {
             } else {
                 data = await CollectionService.getPublicCollection(id);
             }
-            setCollection(data?.result || data);
+            const collectionData = data?.result || data;
+            setCollection(collectionData);
+            setLikeCount(collectionData?.likes?.length || 0);
         } catch (error) {
             console.error('Failed to fetch collection:', error);
             setSnackbar({ show: true, message: 'Failed to load collection', type: 'error' });
@@ -71,11 +82,14 @@ const CollectionDetailPage = () => {
     };
 
     const handleEdit = () => {
+        if (!isOwner) return;
         setShowMenu(false);
         setIsEditModalOpen(true);
     };
 
     const handleDelete = async () => {
+        if (!isOwner) return;
+
         if (!window.confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
             return;
         }
@@ -95,32 +109,62 @@ const CollectionDetailPage = () => {
     };
 
     const handleAddProducts = () => {
-        // TODO: Implement add products modal/page
+        if (!isOwner) return;
         setSnackbar({ show: true, message: 'Add products feature coming soon!', type: 'info' });
     };
 
-    const handleSave = () => {
+    const handleLike = () => {
         if (!isAuthenticated) {
             navigate('/signup');
             return;
         }
-        setIsSaved(!isSaved);
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+        // TODO: Implement like API call
+    };
+
+    const handleFollow = () => {
+        if (!isAuthenticated) {
+            navigate('/signup');
+            return;
+        }
+        setIsFollowing(!isFollowing);
         setSnackbar({
             show: true,
-            message: isSaved ? 'Removed from saved' : 'Saved to your collection',
+            message: isFollowing ? `Unfollowed @${creator?.username}` : `Following @${creator?.username}`,
             type: 'success'
         });
+        // TODO: Implement follow API call
+    };
+
+    const handleCreatorClick = () => {
+        if (creator?._id) {
+            navigate(`/user/${creator._id}`);
+        }
     };
 
     const handleUpdate = () => {
         fetchCollection();
     };
 
+    const getImageUrl = (url) => {
+        if (!url) return API_CONFIG.BASE_URL + '/images/default.webp';
+        if (url.startsWith('http')) return url;
+        return API_CONFIG.BASE_URL + url;
+    };
+
+    const formatCount = (count) => {
+        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+        return count?.toString() || '0';
+    };
+
     if (loading) {
         return (
-            <div className="collection-detail-loading">
-                <Loader className="spinner" size={40} />
-                <p>Loading collection...</p>
+            <div className={`collection-detail-page ${!isAuthenticated ? 'public-view' : ''}`}>
+                <div className="collection-detail-container">
+                    <ShimmerCollectionDetail />
+                </div>
             </div>
         );
     }
@@ -146,9 +190,8 @@ const CollectionDetailPage = () => {
     }
 
     const collectionName = collection.title || collection.name;
-    const displayImage = collection.displayImageUrl?.startsWith('http')
-        ? collection.displayImageUrl
-        : API_CONFIG.BASE_URL + (collection.displayImageUrl || '/placeholder.jpg');
+    const displayImage = getImageUrl(collection.displayImageUrl || '/placeholder.jpg');
+    const creatorImage = getImageUrl(creator?.profileImageUrl);
 
     return (
         <>
@@ -160,41 +203,78 @@ const CollectionDetailPage = () => {
                 transition={{ duration: 0.5 }}
             >
                 <div className="collection-detail-container">
-                    {isAuthenticated ? (
-                        <Link to="/profile/me" className="back-link">
-                            <ArrowLeft size={16} />
-                            Back to Profile
-                        </Link>
-                    ) : (
-                        <Link to="/landing" className="back-link">
-                            <ArrowLeft size={16} />
-                            Explore Dropp
-                        </Link>
+                    <Link to={isAuthenticated ? "/profile/me" : "/landing"} className="back-link">
+                        <ArrowLeft size={16} />
+                        {isAuthenticated ? 'Back to Profile' : 'Explore Dropp'}
+                    </Link>
+
+                    {/* Creator Info Card - Always show with correct styling */}
+                    {creator && (
+                        <div className="creator-card-section">
+                            <div className="creator-card-left" onClick={handleCreatorClick}>
+                                <img
+                                    src={creatorImage}
+                                    alt={creator.fullName || creator.username}
+                                    className="creator-card-avatar"
+                                    onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
+                                />
+                                <div className="creator-card-info">
+                                    <h3 className="creator-card-name">{creator.fullName || creator.username}</h3>
+                                    <span className="creator-card-username">@{creator.username}</span>
+                                    {creator.bio && (
+                                        <span className="creator-card-bio">{creator.bio}</span>
+                                    )}
+                                    <span className="creator-card-followers">{formatCount(creator.followers?.length || creator.followers || 0)} followers</span>
+                                </div>
+                            </div>
+                            {!isOwner && (
+                                <button
+                                    className={`creator-follow-btn ${isFollowing ? 'following' : ''}`}
+                                    onClick={handleFollow}
+                                >
+                                    {isFollowing ? (
+                                        <>
+                                            <UserCheck size={16} />
+                                            Following
+                                        </>
+                                    ) : (
+                                        <>
+                                            <UserPlus size={16} />
+                                            Follow
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
                     )}
 
+                    {/* Collection Header */}
                     <div className="collection-header">
                         <div className="collection-info">
                             <h1 className="collection-title">{collectionName}</h1>
                             {collection.desc && (
                                 <p className="collection-description">{collection.desc}</p>
                             )}
+                            <div className="collection-stats-row">
+                                <span className="collection-stat-badge">
+                                    <Heart size={14} /> {likeCount} likes
+                                </span>
+                            </div>
                         </div>
 
                         <div className="collection-actions">
-                            {/* Save/Bookmark button for non-owners */}
-                            {!isOwner && (
-                                <button
-                                    className={`action-btn save-btn ${isSaved ? 'saved' : ''}`}
-                                    onClick={handleSave}
-                                    aria-label={isSaved ? 'Unsave collection' : 'Save collection'}
-                                >
-                                    <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
-                                </button>
-                            )}
-
-                            {/* Share button for everyone */}
+                            {/* Like button */}
                             <button
-                                className="action-btn share-btn"
+                                className={`action-btn ${isLiked ? 'liked' : ''}`}
+                                onClick={handleLike}
+                                aria-label={isLiked ? 'Unlike collection' : 'Like collection'}
+                            >
+                                <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
+                            </button>
+
+                            {/* Share button */}
+                            <button
+                                className="action-btn"
                                 onClick={handleShare}
                                 aria-label="Share collection"
                             >
@@ -205,7 +285,7 @@ const CollectionDetailPage = () => {
                             {isOwner && (
                                 <>
                                     <button
-                                        className="action-btn add-btn"
+                                        className="action-btn primary"
                                         onClick={handleAddProducts}
                                         aria-label="Add products"
                                     >
@@ -214,7 +294,7 @@ const CollectionDetailPage = () => {
 
                                     <div className="menu-container">
                                         <button
-                                            className="action-btn menu-btn"
+                                            className="action-btn"
                                             onClick={() => setShowMenu(!showMenu)}
                                             aria-label="More options"
                                         >
@@ -242,27 +322,27 @@ const CollectionDetailPage = () => {
                     <div className="collection-content">
                         <h3 className="section-title">Products</h3>
 
-                        <div className="collection-grid">
-                            {/* Empty state when no products */}
-                            <div className="empty-products-state">
-                                <img
-                                    src={displayImage}
-                                    alt={collectionName}
-                                    className="collection-default-image"
-                                />
-                                <div className="empty-state-overlay">
-                                    <p>This collection is empty</p>
-                                    {isOwner && (
-                                        <button
-                                            className="add-products-btn"
-                                            onClick={handleAddProducts}
-                                        >
-                                            <Plus size={16} />
-                                            Add Products
-                                        </button>
-                                    )}
-                                </div>
+                        {/* Empty state - no products yet */}
+                        <div className="empty-products-card">
+                            <div className="empty-products-icon">
+                                <Package size={48} strokeWidth={1.5} />
                             </div>
+                            <h4 className="empty-products-title">No products yet</h4>
+                            <p className="empty-products-text">
+                                {isOwner
+                                    ? 'Start adding products to your collection to share with others.'
+                                    : 'This collection doesn\'t have any products yet.'
+                                }
+                            </p>
+                            {isOwner && (
+                                <button
+                                    className="add-products-btn"
+                                    onClick={handleAddProducts}
+                                >
+                                    <Plus size={18} />
+                                    Add Products
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -286,7 +366,7 @@ const CollectionDetailPage = () => {
                     )}
                 </div>
 
-                {/* Edit Modal */}
+                {/* Edit Modal - Only render for owners */}
                 {isOwner && (
                     <EditCollectionModal
                         isOpen={isEditModalOpen}

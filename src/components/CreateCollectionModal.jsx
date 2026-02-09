@@ -8,7 +8,7 @@ import Snackbar from './Snackbar';
 import '../styles/CreateCollectionModal.css';
 
 const CreateCollectionModal = ({ isOpen, onClose }) => {
-    const [name, setName] = useState('');
+    const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
@@ -18,8 +18,8 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name.trim()) {
-            setSnackbar({ show: true, message: 'Collection name is required', type: 'error' });
+        if (!title.trim()) {
+            setSnackbar({ show: true, message: 'Collection title is required', type: 'error' });
             return;
         }
 
@@ -30,7 +30,7 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
 
         setLoading(true);
         try {
-            const response = await CollectionService.createCollection(name, desc);
+            const response = await CollectionService.createCollection(title, desc);
             setSnackbar({ show: true, message: 'Collection created successfully!', type: 'success' });
 
             // Extract collection data from response
@@ -43,7 +43,7 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
             }
 
             // Reset form
-            setName('');
+            setTitle('');
             setDesc('');
 
             // Close modal and navigate
@@ -75,7 +75,7 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
 
     const handleClose = () => {
         if (!loading) {
-            setName('');
+            setTitle('');
             setDesc('');
             onClose();
         }
@@ -117,8 +117,8 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
                             <input
                                 id="collection-name"
                                 type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Enter collection name"
                                 disabled={loading}
                                 maxLength={100}

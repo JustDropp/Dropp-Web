@@ -85,7 +85,7 @@ const AnimatedRoutes = () => {
         <Route path="/about" element={isAuthenticated ? <About /> : <AboutNav />} />
         <Route path="/profile/:username" element={isAuthenticated ? <Profile /> : <ProfileDemo />} />
         <Route path="/c/:id" element={<CollectionDetailPage />} />
-        <Route path="/user/:username" element={<UserProfilePage />} />
+        <Route path="/user/:userId" element={<UserProfilePage />} />
         <Route path="/settings" element={
           <ProtectedRoute>
             <Settings />

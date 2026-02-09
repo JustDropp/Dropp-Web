@@ -160,13 +160,15 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--border-color);
+    border: 3px solid var(--accent-blue);
+    box-shadow: 0 4px 12px rgba(56, 135, 248, 0.2);
     margin-bottom: 1.25rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .user-profile-avatar:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(56, 135, 248, 0.3);
+    transform: scale(1.02);
 }
 
 .user-profile-details {
@@ -340,7 +342,22 @@
     color: var(--text-secondary);
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-color);
     gap: 0.75rem;
+    text-align: center;
+}
+
+.empty-collections p {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.empty-collections span {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    max-width: 300px;
 }
 
 /* Responsive */

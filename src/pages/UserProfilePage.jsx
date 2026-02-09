@@ -12,10 +12,7 @@ import {
     Ban,
     Flag,
     Grid,
-    Loader,
-    Copy,
-    Check,
-    X
+    Loader
 } from 'lucide-react';
 import UserService from '../core/services/UserService';
 import CollectionService from '../core/services/CollectionService';
@@ -24,56 +21,79 @@ import ImageZoomModal from '../components/ImageZoomModal';
 import Snackbar from '../components/Snackbar';
 import CollectionCard from '../components/CollectionCard';
 import { ShimmerCollectionGrid } from '../components/Shimmer';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/UserProfilePage.css';
+import '../styles/Profile.css';
 
 const UserProfilePage = () => {
-    const { username } = useParams();
+    const { userId } = useParams();
     const navigate = useNavigate();
+    const { user: currentUser, isAuthenticated } = useAuth();
 
     const [user, setUser] = useState(null);
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [collectionsLoading, setCollectionsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFollowing, setIsFollowing] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [showImageZoom, setShowImageZoom] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const userData = await UserService.getUserByUsername(username);
-                setUser(userData);
-                // Optionally fetch user's public collections
-                // const userCollections = await CollectionService.getUserCollections(username);
-                // setCollections(userCollections);
-            } catch (err) {
-                console.error('Failed to fetch user:', err);
-                setError('User not found');
-            } finally {
-                setLoading(false);
-            }
-        };
+    // Check if this is the current user's own profile
+    const isOwnProfile = isAuthenticated && (currentUser?.id === userId || currentUser?._id === userId);
 
-        if (username) {
+    useEffect(() => {
+        if (userId) {
             fetchUserData();
+            fetchUserCollections();
         }
-    }, [username]);
+    }, [userId]);
+
+    const fetchUserData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const userData = await UserService.getUserById(userId);
+            setUser(userData);
+        } catch (err) {
+            console.error('Failed to fetch user:', err);
+            setError('User not found');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchUserCollections = async () => {
+        try {
+            setCollectionsLoading(true);
+            const userCollections = await CollectionService.getUserCollections(userId);
+            setCollections(userCollections);
+        } catch (err) {
+            console.error('Failed to fetch collections:', err);
+            setCollections([]);
+        } finally {
+            setCollectionsLoading(false);
+        }
+    };
 
     const handleFollow = () => {
+        if (!isAuthenticated) {
+            navigate('/signup');
+            return;
+        }
         setIsFollowing(!isFollowing);
         setSnackbar({
             show: true,
             message: isFollowing ? `Unfollowed @${user?.username}` : `Following @${user?.username}`,
             type: 'success'
         });
+        // TODO: Implement follow API call
     };
 
     const handleShareProfile = () => {
         const basePath = import.meta.env.BASE_URL || '/';
-        const url = `${window.location.origin}${basePath}#/user/${username}`;
+        const url = `${window.location.origin}${basePath}#/user/${userId}`;
         navigator.clipboard.writeText(url);
         setShowMenu(false);
         setSnackbar({ show: true, message: 'Profile link copied!', type: 'success' });
@@ -92,7 +112,7 @@ const UserProfilePage = () => {
         setShowMenu(false);
         setSnackbar({
             show: true,
-            message: 'Report submitted. Thanks for helping keep Dropp safe.',
+            message: 'Report submitted. Thanks for keeping Dropp safe.',
             type: 'info'
         });
     };
@@ -102,6 +122,19 @@ const UserProfilePage = () => {
         if (user.profileImageUrl.startsWith('http')) return user.profileImageUrl;
         return API_CONFIG.BASE_URL + user.profileImageUrl;
     };
+
+    const formatCount = (count) => {
+        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+        return count?.toString() || '0';
+    };
+
+    // If viewing own profile, redirect to /profile/me
+    useEffect(() => {
+        if (isOwnProfile) {
+            navigate('/profile/me', { replace: true });
+        }
+    }, [isOwnProfile, navigate]);
 
     if (loading) {
         return (
@@ -116,7 +149,7 @@ const UserProfilePage = () => {
         return (
             <div className="user-profile-error">
                 <h2>User not found</h2>
-                <p>The user @{username} doesn't exist or may have been removed.</p>
+                <p>This user doesn't exist or may have been removed.</p>
                 <button className="back-btn" onClick={() => navigate(-1)}>
                     <ArrowLeft size={18} />
                     Go Back
@@ -184,6 +217,7 @@ const UserProfilePage = () => {
                         onClick={() => setShowImageZoom(true)}
                         whileHover={{ scale: 1.02 }}
                         style={{ cursor: 'pointer' }}
+                        onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
                     />
 
                     <div className="user-profile-details">
@@ -216,12 +250,16 @@ const UserProfilePage = () => {
 
                         <div className="user-profile-stats">
                             <div className="stat">
-                                <span className="stat-value">{user.followers || 0}</span>
+                                <span className="stat-value">{formatCount(user.followers)}</span>
                                 <span className="stat-label">Followers</span>
                             </div>
                             <div className="stat">
-                                <span className="stat-value">{user.following || 0}</span>
+                                <span className="stat-value">{formatCount(user.following)}</span>
                                 <span className="stat-label">Following</span>
+                            </div>
+                            <div className="stat">
+                                <span className="stat-value">{collections.length}</span>
+                                <span className="stat-label">Collections</span>
                             </div>
                         </div>
 
@@ -251,7 +289,7 @@ const UserProfilePage = () => {
                         Collections
                     </h3>
 
-                    {loading ? (
+                    {collectionsLoading ? (
                         <div style={{ marginTop: '1rem' }}>
                             <ShimmerCollectionGrid count={3} />
                         </div>
@@ -261,13 +299,15 @@ const UserProfilePage = () => {
                                 <CollectionCard
                                     key={collection._id || collection.id}
                                     collection={collection}
+                                    isOwner={false}
                                 />
                             ))}
                         </div>
                     ) : (
                         <div className="empty-collections">
-                            <Grid size={40} strokeWidth={1} />
+                            <Grid size={48} strokeWidth={1} />
                             <p>No public collections yet</p>
+                            <span>When {user.fullName || user.username} creates collections, they'll appear here.</span>
                         </div>
                     )}
                 </div>

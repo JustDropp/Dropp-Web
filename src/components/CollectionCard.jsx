@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Share2, MoreHorizontal, Edit, Trash2, Link2, Copy, Check } from 'lucide-react';
+import { Share2, MoreHorizontal, Edit, Trash2, Link2, Copy, Check, Heart } from 'lucide-react';
 import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/Profile.css';
 
@@ -15,12 +15,29 @@ const CollectionCard = ({
     const [openMenu, setOpenMenu] = useState(false);
     const [showShare, setShowShare] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(collection.likes?.length || 0);
 
     const collectionId = collection._id || collection.id;
+    const creator = collection.createdBy;
 
     const handleCardClick = (e) => {
         if (e.target.closest('.board-actions') || e.target.closest('.share-popup')) return;
         navigate(`/c/${collectionId}`);
+    };
+
+    const handleCreatorClick = (e) => {
+        e.stopPropagation();
+        if (creator?._id) {
+            navigate(`/user/${creator._id}`);
+        }
+    };
+
+    const handleLikeClick = (e) => {
+        e.stopPropagation();
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+        // TODO: Implement like API call
     };
 
     const handleShareClick = (e) => {
@@ -48,14 +65,19 @@ const CollectionCard = ({
         }, 1500);
     };
 
+    const getImageUrl = (url) => {
+        if (!url) return API_CONFIG.BASE_URL + '/images/book.svg';
+        if (url.startsWith('http')) return url;
+        return API_CONFIG.BASE_URL + url;
+    };
+
     const getGridImages = () => {
-        const mainImage = collection.displayImageUrl?.startsWith('http')
-            ? collection.displayImageUrl
-            : API_CONFIG.BASE_URL + (collection.displayImageUrl || '/images/book.svg');
+        const mainImage = getImageUrl(collection.displayImageUrl);
         return [mainImage, mainImage, mainImage];
     };
 
     const gridImages = getGridImages();
+    const creatorImage = creator?.profileImageUrl ? getImageUrl(creator.profileImageUrl) : API_CONFIG.BASE_URL + '/images/default.webp';
 
     // Close popups on outside click
     React.useEffect(() => {
@@ -63,20 +85,12 @@ const CollectionCard = ({
             setOpenMenu(false);
             setShowShare(false);
         };
-        // We'll rely on parent for global click handling if needed, 
-        // or add a transparent overlay. For now, basic state toggle.
-        // Actually, let's attach listener to document.
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
     return (
-        <div className="pinterest-board" onClick={handleCardClick} onClickCapture={(e) => {
-            // Stop propagation for the card itself but allow clicks outside to close menus
-            // This logic needs to be careful not to stop valid clicks.
-            // Better approach: handle click outside in parent or use a refined strategy.
-            // For this component, simply clicking anywhere else closes the menu.
-        }}>
+        <div className="pinterest-board" onClick={handleCardClick}>
             <div className="board-preview">
                 <div className="board-main-image">
                     <img
@@ -104,6 +118,14 @@ const CollectionCard = ({
 
                 {/* Hover Actions */}
                 <div className="board-actions">
+                    <button
+                        className={`board-action-btn like-btn ${isLiked ? 'liked' : ''}`}
+                        onClick={handleLikeClick}
+                        title="Like"
+                    >
+                        <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                    </button>
+
                     <button
                         className="board-action-btn"
                         onClick={handleShareClick}
@@ -162,9 +184,25 @@ const CollectionCard = ({
                 </div>
             )}
 
-            <div className="board-info">
-                <h4 className="board-title">{collection.title}</h4>
-                {collection.desc && <p className="board-desc">{collection.desc}</p>}
+            {/* Board Info with Creator Avatar */}
+            <div className="board-info-row">
+                {creator && (
+                    <img
+                        src={creatorImage}
+                        alt={creator.fullName || creator.username}
+                        className="board-creator-avatar"
+                        onClick={handleCreatorClick}
+                        onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
+                    />
+                )}
+                <div className="board-info">
+                    <h4 className="board-title">{collection.title}</h4>
+                    {creator && (
+                        <span className="board-creator-name" onClick={handleCreatorClick}>
+                            {creator.fullName || creator.username}
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -94,6 +94,31 @@ class UserService {
             throw error;
         }
     }
+
+    /**
+     * Get user profile by userId
+     * @param {string} userId - User ID to fetch
+     * @returns {Promise<Object>}
+     */
+    async getUserById(userId) {
+        try {
+            return await UserRepository.getUserById(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get all users (creators)
+     * @returns {Promise<Array>}
+     */
+    async getAllUsers() {
+        try {
+            return await UserRepository.getAllUsers();
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserService();

@@ -107,6 +107,33 @@ class UserRepository {
             throw error;
         }
     }
+
+    /**
+     * Get user profile by userId
+     * @param {string} userId - User ID to fetch
+     * @returns {Promise<Object>}
+     */
+    async getUserById(userId) {
+        try {
+            const response = await apiClient.get(`/user/profile/${encodeURIComponent(userId)}`);
+            return response.data?.results || response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get all users (creators)
+     * @returns {Promise<Array>}
+     */
+    async getAllUsers() {
+        try {
+            const response = await apiClient.get(API_CONFIG.ENDPOINTS.USERS);
+            return response.data?.results || [];
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default new UserRepository();

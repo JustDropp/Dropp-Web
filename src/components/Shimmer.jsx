@@ -58,3 +58,47 @@ export const ShimmerMasonryGrid = ({ count = 6 }) => (
         ))}
     </div>
 );
+
+export const ShimmerCreatorCard = () => (
+    <div className="shimmer-creator-card">
+        <ShimmerBase className="shimmer-creator-avatar" />
+        <div className="shimmer-creator-info">
+            <ShimmerBase className="shimmer-line title" style={{ width: '60%' }} />
+            <ShimmerBase className="shimmer-line text" style={{ width: '40%' }} />
+            <ShimmerBase className="shimmer-line text" style={{ width: '80%' }} />
+        </div>
+        <div className="shimmer-creator-stats">
+            <ShimmerBase className="shimmer-stat-item" />
+            <ShimmerBase className="shimmer-stat-item" />
+        </div>
+        <ShimmerBase className="shimmer-btn" />
+    </div>
+);
+
+export const ShimmerCreatorGrid = ({ count = 6 }) => (
+    <div className="creators-grid landscape">
+        {Array(count).fill(0).map((_, i) => (
+            <ShimmerCreatorCard key={i} />
+        ))}
+    </div>
+);
+
+export const ShimmerCollectionDetail = () => (
+    <div className="shimmer-collection-detail">
+        <ShimmerBase className="shimmer-back-link" style={{ width: '120px', height: '20px' }} />
+        <div className="shimmer-creator-section">
+            <ShimmerBase className="shimmer-avatar-lg" />
+            <div className="shimmer-creator-detail-info">
+                <ShimmerBase className="shimmer-line title" style={{ width: '150px' }} />
+                <ShimmerBase className="shimmer-line text" style={{ width: '100px' }} />
+            </div>
+            <ShimmerBase className="shimmer-follow-btn" style={{ width: '100px', height: '40px' }} />
+        </div>
+        <div className="shimmer-collection-header">
+            <ShimmerBase className="shimmer-line title" style={{ width: '60%', height: '40px' }} />
+            <ShimmerBase className="shimmer-line text" style={{ width: '80%' }} />
+        </div>
+        <ShimmerBase className="shimmer-content-area" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }} />
+    </div>
+);
+
