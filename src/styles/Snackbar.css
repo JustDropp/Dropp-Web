@@ -114,3 +114,21 @@
         width: calc(100% - 32px);
     }
 }
+
+@media (max-width: 480px) {
+    .snackbar {
+        padding: 10px 16px;
+        gap: 8px;
+        border-radius: 10px;
+        font-size: 0.875rem;
+    }
+
+    .snackbar-message {
+        font-size: 0.875rem;
+    }
+
+    .snackbar-action {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+}

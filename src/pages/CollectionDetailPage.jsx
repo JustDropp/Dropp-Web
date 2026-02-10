@@ -265,40 +265,40 @@ const CollectionDetailPage = () => {
                         <div className="collection-actions">
                             {/* Like button */}
                             <button
-                                className={`action-btn ${isLiked ? 'liked' : ''}`}
+                                className={`action-btn-label ${isLiked ? 'liked' : ''}`}
                                 onClick={handleLike}
-                                aria-label={isLiked ? 'Unlike collection' : 'Like collection'}
                             >
-                                <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
+                                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                                <span>{isLiked ? 'Liked' : 'Like'}</span>
                             </button>
 
                             {/* Share button */}
                             <button
-                                className="action-btn"
+                                className="action-btn-label"
                                 onClick={handleShare}
-                                aria-label="Share collection"
                             >
-                                <Share2 size={20} />
+                                <Share2 size={18} />
+                                <span>Share</span>
                             </button>
 
                             {/* Owner-only controls */}
                             {isOwner && (
                                 <>
                                     <button
-                                        className="action-btn primary"
+                                        className="action-btn-label primary"
                                         onClick={handleAddProducts}
-                                        aria-label="Add products"
                                     >
-                                        <Plus size={20} />
+                                        <Plus size={18} />
+                                        <span>Add</span>
                                     </button>
 
                                     <div className="menu-container">
                                         <button
-                                            className="action-btn"
+                                            className="action-btn-label"
                                             onClick={() => setShowMenu(!showMenu)}
-                                            aria-label="More options"
                                         >
-                                            <MoreHorizontal size={20} />
+                                            <MoreHorizontal size={18} />
+                                            <span>More</span>
                                         </button>
 
                                         {showMenu && (

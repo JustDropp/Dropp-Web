@@ -11,6 +11,29 @@
     margin: 0 auto;
 }
 
+/* Profile Back Button */
+.profile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-bottom: var(--spacing-md);
+}
+
+.profile-back-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--text-secondary);
+}
+
 /* Profile Header */
 .profile-header {
     margin-bottom: var(--spacing-xl);
@@ -122,6 +145,10 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.profile-menu-container {
+    position: relative;
+}
+
 .profile-options-btn {
     padding: 0.5rem;
     border: 1.5px solid var(--border-color);
@@ -144,17 +171,20 @@
     top: 100%;
     right: 0;
     margin-top: 0.5rem;
-    background: var(--glass-bg);
+    background: var(--bg-primary);
     backdrop-filter: blur(var(--backdrop-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--glass-shadow);
-    min-width: 160px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
     z-index: 10;
+    overflow: hidden;
 }
 
 .profile-options-menu button {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     width: 100%;
     padding: 0.75rem 1rem;
     text-align: left;
@@ -164,18 +194,41 @@
     cursor: pointer;
     transition: background var(--transition-fast);
     font-size: 0.875rem;
+    font-family: var(--font-sans);
 }
 
 .profile-options-menu button:hover {
     background: var(--bg-secondary);
 }
 
-.profile-options-menu button:first-child {
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+.profile-options-menu button.danger {
+    color: #dc2626;
 }
 
-.profile-options-menu button:last-child {
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
+.profile-options-menu button.danger:hover {
+    background: rgba(220, 38, 38, 0.08);
+}
+
+/* Error state for profile */
+.profile-error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 0.75rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.profile-error-state h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.profile-error-state p {
+    margin: 0 0 1rem 0;
 }
 
 .profile-stats {
@@ -207,6 +260,7 @@
 
 .profile-fullname {
     font-weight: 600;
+    font-size: 1.125rem;
     margin: 0 0 0.5rem 0;
     color: var(--text-primary);
 }
@@ -502,6 +556,8 @@
     .profile-message-btn,
     .profile-edit-btn {
         min-width: calc(50% - 0.25rem);
+        min-height: 44px;
+        justify-content: center;
     }
 
     .profile-stats {
@@ -523,6 +579,14 @@
 
     .profile-tab {
         font-size: 0.8125rem;
+    }
+
+    .profile-fullname {
+        font-size: 1rem;
+    }
+
+    .profile-back-btn {
+        margin-bottom: var(--spacing-sm);
     }
 }
 
@@ -726,9 +790,10 @@
     right: 0;
     margin-bottom: 0.5rem;
     min-width: 160px;
-    background: #fff;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--glass-shadow);
     overflow: hidden;
     z-index: 100;
 }
@@ -738,7 +803,7 @@
     padding: 12px 16px;
     background: transparent;
     border: none;
-    color: #111;
+    color: var(--text-primary);
     font-size: 14px;
     font-weight: 500;
     display: flex;
@@ -750,15 +815,15 @@
 }
 
 .board-dropdown button:hover {
-    background: #f5f5f5;
+    background: var(--bg-secondary);
 }
 
 .board-dropdown button.delete-btn {
-    color: #cc0000;
+    color: #dc2626;
 }
 
 .board-dropdown button.delete-btn:hover {
-    background: #fff0f0;
+    background: rgba(220, 38, 38, 0.1);
 }
 
 /* Board Info with Avatar Row */
@@ -844,9 +909,10 @@
     top: 0;
     right: 0;
     width: 300px;
-    background: #fff;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--glass-shadow);
     z-index: 200;
     overflow: visible;
 }
@@ -856,8 +922,8 @@
     align-items: center;
     gap: 8px;
     padding: 14px 16px;
-    border-bottom: 1px solid #eee;
-    color: #111;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 15px;
 }
@@ -871,10 +937,10 @@
 .share-link-input {
     flex: 1;
     padding: 10px 12px;
-    background: #f5f5f5;
-    border: none;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     font-family: inherit;
     overflow: hidden;
@@ -887,7 +953,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #e60023;
+    background: var(--accent-gradient);
     color: #fff;
     border: none;
     border-radius: 50%;
@@ -896,7 +962,7 @@
 }
 
 .copy-link-btn:hover {
-    background: #ad081b;
+    background: var(--accent-blue-dark);
     transform: scale(1.05);
 }
 
@@ -1033,5 +1099,39 @@
 
     .board-preview {
         border-radius: 12px;
+    }
+
+    .board-info-row {
+        padding: 8px 2px;
+        gap: 8px;
+    }
+
+    .board-title {
+        font-size: 13px;
+    }
+
+    .board-creator-name {
+        font-size: 11px;
+    }
+
+    .board-creator-avatar {
+        width: 28px;
+        height: 28px;
+    }
+
+    .board-action-btn {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 360px) {
+    .pinterest-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .board-preview {
+        aspect-ratio: 1.4;
     }
 }

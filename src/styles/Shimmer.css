@@ -179,3 +179,53 @@
 .shimmer-content-area {
     width: 100%;
 }
+
+/* Responsive Shimmer */
+@media (max-width: 768px) {
+    .shimmer-header-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .shimmer-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .shimmer-stats {
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .shimmer-creator-section {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .shimmer-profile-header {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .shimmer-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .shimmer-stat {
+        width: 60px;
+        height: 32px;
+    }
+
+    .shimmer-creator-card {
+        padding: 1rem;
+    }
+
+    .shimmer-creator-avatar {
+        width: 48px;
+        height: 48px;
+    }
+}

@@ -1,28 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    ArrowLeft,
-    MapPin,
-    Link as LinkIcon,
-    UserPlus,
-    UserCheck,
-    MoreHorizontal,
-    Share2,
-    Ban,
-    Flag,
-    Grid,
-    Loader
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Loader } from 'lucide-react';
 import UserService from '../core/services/UserService';
 import CollectionService from '../core/services/CollectionService';
 import { API_CONFIG } from '../core/config/apiConfig';
+import ProfileHeader from '../components/ProfileHeader';
+import ProfileTabs from '../components/ProfileTabs';
 import ImageZoomModal from '../components/ImageZoomModal';
 import Snackbar from '../components/Snackbar';
-import CollectionCard from '../components/CollectionCard';
-import { ShimmerCollectionGrid } from '../components/Shimmer';
+import { ShimmerProfileHeader, ShimmerCollectionGrid } from '../components/Shimmer';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/UserProfilePage.css';
 import '../styles/Profile.css';
 
 const UserProfilePage = () => {
@@ -36,11 +24,9 @@ const UserProfilePage = () => {
     const [collectionsLoading, setCollectionsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [showMenu, setShowMenu] = useState(false);
     const [showImageZoom, setShowImageZoom] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
 
-    // Check if this is the current user's own profile
     const isOwnProfile = isAuthenticated && (currentUser?.id === userId || currentUser?._id === userId);
 
     useEffect(() => {
@@ -49,6 +35,12 @@ const UserProfilePage = () => {
             fetchUserCollections();
         }
     }, [userId]);
+
+    useEffect(() => {
+        if (isOwnProfile) {
+            navigate('/profile/me', { replace: true });
+        }
+    }, [isOwnProfile, navigate]);
 
     const fetchUserData = async () => {
         try {
@@ -88,19 +80,20 @@ const UserProfilePage = () => {
             message: isFollowing ? `Unfollowed @${user?.username}` : `Following @${user?.username}`,
             type: 'success'
         });
-        // TODO: Implement follow API call
+    };
+
+    const handleMessage = () => {
+        setSnackbar({ show: true, message: 'Messages coming soon!', type: 'info' });
     };
 
     const handleShareProfile = () => {
         const basePath = import.meta.env.BASE_URL || '/';
         const url = `${window.location.origin}${basePath}#/user/${userId}`;
         navigator.clipboard.writeText(url);
-        setShowMenu(false);
         setSnackbar({ show: true, message: 'Profile link copied!', type: 'success' });
     };
 
     const handleBlock = () => {
-        setShowMenu(false);
         setSnackbar({
             show: true,
             message: `@${user?.username} has been blocked`,
@@ -109,7 +102,6 @@ const UserProfilePage = () => {
     };
 
     const handleReport = () => {
-        setShowMenu(false);
         setSnackbar({
             show: true,
             message: 'Report submitted. Thanks for keeping Dropp safe.',
@@ -123,197 +115,71 @@ const UserProfilePage = () => {
         return API_CONFIG.BASE_URL + user.profileImageUrl;
     };
 
-    const formatCount = (count) => {
-        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
-        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
-        return count?.toString() || '0';
-    };
-
-    // If viewing own profile, redirect to /profile/me
-    useEffect(() => {
-        if (isOwnProfile) {
-            navigate('/profile/me', { replace: true });
-        }
-    }, [isOwnProfile, navigate]);
-
-    if (loading) {
+    if (loading || collectionsLoading) {
         return (
-            <div className="user-profile-loading">
-                <Loader className="spin" size={40} />
-                <p>Loading profile...</p>
+            <div className="profile-page">
+                <div className="profile-container">
+                    <ShimmerProfileHeader />
+                    <div style={{ padding: '0 2rem' }}>
+                        <ShimmerCollectionGrid count={6} />
+                    </div>
+                </div>
             </div>
         );
     }
 
     if (error || !user) {
         return (
-            <div className="user-profile-error">
-                <h2>User not found</h2>
-                <p>This user doesn't exist or may have been removed.</p>
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    <ArrowLeft size={18} />
-                    Go Back
-                </button>
+            <div className="profile-page">
+                <div className="profile-error-state">
+                    <h2>User not found</h2>
+                    <p>This user doesn't exist or may have been removed.</p>
+                    <button className="profile-edit-btn" onClick={() => navigate(-1)}>
+                        Go Back
+                    </button>
+                </div>
             </div>
         );
     }
 
+    const adaptedUser = {
+        ...user,
+        avatar: getProfileImageUrl(),
+        isFollowing,
+        stats: {
+            followers: user.followers || 0,
+            following: user.following || 0,
+            collections: collections.length
+        }
+    };
+
     return (
         <motion.div
-            className="user-profile-page"
+            className="profile-page"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
         >
-            {/* Header */}
-            <div className="user-profile-header">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    <ArrowLeft size={20} />
-                </button>
-                <h1 className="header-title">{user.fullName || user.username}</h1>
-                <div className="header-actions">
-                    <div className="menu-container">
-                        <button
-                            className="menu-btn"
-                            onClick={() => setShowMenu(!showMenu)}
-                        >
-                            <MoreHorizontal size={20} />
-                        </button>
-                        <AnimatePresence>
-                            {showMenu && (
-                                <motion.div
-                                    className="user-profile-dropdown"
-                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                >
-                                    <button onClick={handleShareProfile}>
-                                        <Share2 size={16} />
-                                        Share Profile
-                                    </button>
-                                    <button onClick={handleBlock}>
-                                        <Ban size={16} />
-                                        Block
-                                    </button>
-                                    <button className="danger" onClick={handleReport}>
-                                        <Flag size={16} />
-                                        Report
-                                    </button>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                </div>
+            <div className="profile-container">
+                <ProfileHeader
+                    user={adaptedUser}
+                    isOwnProfile={false}
+                    onFollow={handleFollow}
+                    onMessage={handleMessage}
+                    onShareProfile={handleShareProfile}
+                    onBlock={handleBlock}
+                    onReport={handleReport}
+                    onAvatarClick={() => setShowImageZoom(true)}
+                />
+
+                <ProfileTabs
+                    collections={collections}
+                    activeTab="collections"
+                    isOwner={false}
+                />
             </div>
 
-            {/* Profile Content */}
-            <div className="user-profile-content">
-                {/* Profile Info */}
-                <div className="user-profile-info-section">
-                    <motion.img
-                        className="user-profile-avatar"
-                        src={getProfileImageUrl()}
-                        alt={user.fullName || user.username}
-                        onClick={() => setShowImageZoom(true)}
-                        whileHover={{ scale: 1.02 }}
-                        style={{ cursor: 'pointer' }}
-                        onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
-                    />
-
-                    <div className="user-profile-details">
-                        <h2 className="user-profile-name">{user.fullName || 'User'}</h2>
-                        <p className="user-profile-username">@{user.username}</p>
-
-                        {user.bio && (
-                            <p className="user-profile-bio">{user.bio}</p>
-                        )}
-
-                        <div className="user-profile-meta">
-                            {user.location && (
-                                <div className="meta-item">
-                                    <MapPin size={14} />
-                                    <span>{user.location}</span>
-                                </div>
-                            )}
-                            {user.link && (
-                                <a
-                                    href={user.link.startsWith('http') ? user.link : `https://${user.link}`}
-                                    className="meta-item link"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <LinkIcon size={14} />
-                                    <span>{user.link}</span>
-                                </a>
-                            )}
-                        </div>
-
-                        <div className="user-profile-stats">
-                            <div className="stat">
-                                <span className="stat-value">{formatCount(user.followers)}</span>
-                                <span className="stat-label">Followers</span>
-                            </div>
-                            <div className="stat">
-                                <span className="stat-value">{formatCount(user.following)}</span>
-                                <span className="stat-label">Following</span>
-                            </div>
-                            <div className="stat">
-                                <span className="stat-value">{collections.length}</span>
-                                <span className="stat-label">Collections</span>
-                            </div>
-                        </div>
-
-                        <button
-                            className={`follow-btn ${isFollowing ? 'following' : ''}`}
-                            onClick={handleFollow}
-                        >
-                            {isFollowing ? (
-                                <>
-                                    <UserCheck size={18} />
-                                    Following
-                                </>
-                            ) : (
-                                <>
-                                    <UserPlus size={18} />
-                                    Follow
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Collections Section */}
-                <div className="collections-section">
-                    <h3 className="section-title">
-                        <Grid size={20} />
-                        Collections
-                    </h3>
-
-                    {collectionsLoading ? (
-                        <div style={{ marginTop: '1rem' }}>
-                            <ShimmerCollectionGrid count={3} />
-                        </div>
-                    ) : collections.length > 0 ? (
-                        <div className="pinterest-grid">
-                            {collections.map((collection) => (
-                                <CollectionCard
-                                    key={collection._id || collection.id}
-                                    collection={collection}
-                                    isOwner={false}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="empty-collections">
-                            <Grid size={48} strokeWidth={1} />
-                            <p>No public collections yet</p>
-                            <span>When {user.fullName || user.username} creates collections, they'll appear here.</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Image Zoom Modal */}
             <ImageZoomModal
                 isOpen={showImageZoom}
                 imageUrl={getProfileImageUrl()}
@@ -321,7 +187,6 @@ const UserProfilePage = () => {
                 onClose={() => setShowImageZoom(false)}
             />
 
-            {/* Snackbar */}
             <Snackbar
                 isVisible={snackbar.show}
                 message={snackbar.message}

@@ -9,7 +9,7 @@ import EditCollectionModal from './EditCollectionModal';
 import Snackbar from './Snackbar';
 import '../styles/Profile.css';
 
-const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh }) => {
+const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh, isOwner = true }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [sharePopupId, setSharePopupId] = useState(null);
@@ -127,11 +127,11 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRef
                                 <CollectionCard
                                     key={collection._id || collection.id}
                                     collection={collection}
-                                    isOwner={true}
-                                    onEdit={(c) => {
+                                    isOwner={isOwner}
+                                    onEdit={isOwner ? (c) => {
                                         setEditingCollection(c);
-                                    }}
-                                    onDelete={(c) => {
+                                    } : undefined}
+                                    onDelete={isOwner ? (c) => {
                                         setSnackbar({
                                             show: true,
                                             message: `Delete "${c.title}"?`,
@@ -141,7 +141,7 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRef
                                                 onClick: () => confirmDelete(c)
                                             }
                                         });
-                                    }}
+                                    } : undefined}
                                 />
                             ))
                         ) : (

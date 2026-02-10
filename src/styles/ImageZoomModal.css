@@ -41,3 +41,23 @@
     border-radius: 8px;
     object-fit: contain;
 }
+
+/* Responsive */
+@media (max-width: 640px) {
+    .image-zoom-overlay {
+        padding: 1rem;
+    }
+
+    .image-zoom-container {
+        max-width: 95vw;
+    }
+
+    .image-zoom-close {
+        top: -2.5rem;
+    }
+
+    .image-zoom-img {
+        max-height: 80vh;
+        border-radius: 4px;
+    }
+}

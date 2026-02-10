@@ -1,24 +1,52 @@
-import React, { useState } from 'react';
-import { User, MessageCircle, MoreHorizontal, MapPin, Link as LinkIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    User, MessageCircle, MoreHorizontal, MapPin,
+    Link as LinkIcon, ArrowLeft, Share2, Ban, Flag
+} from 'lucide-react';
 import '../styles/Profile.css';
 
-const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage, onEditProfile }) => {
+const ProfileHeader = ({
+    user,
+    isOwnProfile,
+    onFollow,
+    onMessage,
+    onEditProfile,
+    onShareProfile,
+    onBlock,
+    onReport,
+    onAvatarClick
+}) => {
     const [showOptions, setShowOptions] = useState(false);
+    const navigate = useNavigate();
     const { avatar, fullName, username, bio, location, link, pronoun, stats, isFollowing } = user;
 
-    const handleFollow = () => {
-        if (onFollow) onFollow();
-    };
-
-    const handleMessage = () => {
-        if (onMessage) onMessage();
-    };
+    // Close menu on outside click
+    useEffect(() => {
+        if (!showOptions) return;
+        const handleClickOutside = () => setShowOptions(false);
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [showOptions]);
 
     return (
         <div className="profile-header">
+            {/* Back navigation for visitor view */}
+            {!isOwnProfile && (
+                <button className="profile-back-btn" onClick={() => navigate(-1)}>
+                    <ArrowLeft size={18} />
+                    <span>Back</span>
+                </button>
+            )}
+
             <div className="profile-header-top">
                 <div className="profile-avatar-section">
-                    <div className="profile-avatar">
+                    <div
+                        className="profile-avatar"
+                        onClick={onAvatarClick}
+                        style={onAvatarClick ? { cursor: 'pointer' } : {}}
+                    >
                         {avatar ? (
                             <img src={avatar} alt={fullName} />
                         ) : (
@@ -36,13 +64,13 @@ const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage, onEditProfile 
                                 <>
                                     <button
                                         className={`profile-follow-btn ${isFollowing ? 'following' : ''}`}
-                                        onClick={handleFollow}
+                                        onClick={() => { if (onFollow) onFollow(); }}
                                     >
                                         {isFollowing ? 'Following' : 'Follow'}
                                     </button>
                                     <button
                                         className="profile-message-btn"
-                                        onClick={handleMessage}
+                                        onClick={() => { if (onMessage) onMessage(); }}
                                     >
                                         <MessageCircle size={18} />
                                         Message
@@ -59,39 +87,69 @@ const ProfileHeader = ({ user, isOwnProfile, onFollow, onMessage, onEditProfile 
                                 </button>
                             )}
 
-                            <button
-                                className="profile-options-btn"
-                                onClick={() => setShowOptions(!showOptions)}
-                            >
-                                <MoreHorizontal size={20} />
-                            </button>
+                            <div className="profile-menu-container">
+                                <button
+                                    className="profile-options-btn"
+                                    onClick={(e) => { e.stopPropagation(); setShowOptions(!showOptions); }}
+                                >
+                                    <MoreHorizontal size={20} />
+                                </button>
 
-                            {showOptions && (
-                                <div className="profile-options-menu">
-                                    {!isOwnProfile && (
-                                        <>
-                                            <button>Report</button>
-                                            <button>Block</button>
-                                        </>
+                                <AnimatePresence>
+                                    {showOptions && (
+                                        <motion.div
+                                            className="profile-options-menu"
+                                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                            transition={{ duration: 0.15 }}
+                                        >
+                                            <button onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (onShareProfile) onShareProfile();
+                                                setShowOptions(false);
+                                            }}>
+                                                <Share2 size={16} />
+                                                Share Profile
+                                            </button>
+                                            {!isOwnProfile && (
+                                                <>
+                                                    <button onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (onBlock) onBlock();
+                                                        setShowOptions(false);
+                                                    }}>
+                                                        <Ban size={16} />
+                                                        Block
+                                                    </button>
+                                                    <button className="danger" onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (onReport) onReport();
+                                                        setShowOptions(false);
+                                                    }}>
+                                                        <Flag size={16} />
+                                                        Report
+                                                    </button>
+                                                </>
+                                            )}
+                                        </motion.div>
                                     )}
-                                    <button>Share Profile</button>
-                                    <button onClick={() => setShowOptions(false)}>Cancel</button>
-                                </div>
-                            )}
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </div>
 
                     <div className="profile-stats">
                         <div className="profile-stat">
-                            <span className="stat-value">{stats.collections.toLocaleString()}</span>
+                            <span className="stat-value">{stats?.collections?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Collections</span>
                         </div>
                         <div className="profile-stat">
-                            <span className="stat-value">{stats.followers.toLocaleString()}</span>
+                            <span className="stat-value">{stats?.followers?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Followers</span>
                         </div>
                         <div className="profile-stat">
-                            <span className="stat-value">{stats.following.toLocaleString()}</span>
+                            <span className="stat-value">{stats?.following?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Following</span>
                         </div>
                     </div>

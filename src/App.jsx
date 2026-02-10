@@ -108,10 +108,15 @@ const AnimatedRoutes = () => {
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // Only show custom cursor on landing page, not on login/signup
+  const isAuthPage = ['/login', '/signup'].includes(location.pathname);
+  const showCustomCursor = !isAuthenticated && !isAuthPage;
 
   return (
-    <div className={`app${!isAuthenticated ? ' landing-cursor-active' : ''}`}>
-      {!isAuthenticated && <CustomCursor />}
+    <div className={`app${showCustomCursor ? ' landing-cursor-active' : ''}`}>
+      {showCustomCursor && <CustomCursor />}
       {isAuthenticated && <Sidebar />}
       <div className="app-content">
         {!isAuthenticated && <Header />}

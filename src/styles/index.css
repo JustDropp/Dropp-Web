@@ -187,6 +187,27 @@ img {
     .btn {
         padding: 0.625rem 1.25rem;
         font-size: 0.875rem;
+        min-height: 44px;
+    }
+}
+
+/* Ensure touch targets on all interactive elements */
+@media (max-width: 768px) {
+    button,
+    a,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    input[type="search"],
+    textarea,
+    select {
+        font-size: 16px; /* Prevent iOS zoom on focus */
     }
 }
 
