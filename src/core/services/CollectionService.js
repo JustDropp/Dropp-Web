@@ -145,8 +145,7 @@ class CollectionService {
      */
     async searchCollections(query) {
         try {
-            const response = await CollectionRepository.searchCollections(query);
-            return response.result || [];
+            return await CollectionRepository.searchCollections(query);
         } catch (error) {
             console.error('CollectionService.searchCollections error:', error);
             throw error;

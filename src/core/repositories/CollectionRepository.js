@@ -99,7 +99,7 @@ class CollectionRepository {
      */
     async searchCollections(query) {
         const response = await apiClient.get(`/c/search/${encodeURIComponent(query)}`);
-        return response.data;
+        return response.data.results;
     }
 }
 

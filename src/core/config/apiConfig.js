@@ -11,7 +11,7 @@ export const API_CONFIG = {
         DELETE_ACCOUNT: '/user/delete',
         COLLECTIONS: '/c',
         COLLECTION_BY_ID: '/c/getCollectionById',
-        EXPLORE: '/c/exploreCollections',
+        EXPLORE: '/c/explore/collections',
         USERS: '/user/',
     },
     TIMEOUT: 10000,
