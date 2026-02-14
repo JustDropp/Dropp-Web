@@ -109,6 +109,21 @@ class CollectionService {
         }
     }
 
+
+    /**
+     * Like/Unlike a collection
+     * @param {string} id - Collection ID
+     * @returns {Promise<Object>}
+     */
+    async likeCollection(id) {
+        try {
+            return await CollectionRepository.likeCollection(id);
+        } catch (error) {
+            console.error('CollectionService.likeCollection error:', error);
+            throw error;
+        }
+    }
+
     /**
      * Delete a collection
      * @param {string} id - Collection ID
@@ -148,6 +163,32 @@ class CollectionService {
             return await CollectionRepository.searchCollections(query);
         } catch (error) {
             console.error('CollectionService.searchCollections error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Add a product to a collection
+     * @param {string} collectionId - Collection ID
+     * @param {Object} productData - Product data
+     * @returns {Promise<Object>}
+     */
+    async addProduct(collectionId, productData) {
+        try {
+            if (!collectionId) throw new Error('Collection ID is required');
+
+            // Check validation based on data type
+            if (productData instanceof FormData) {
+                if (!productData.get('name')) throw new Error('Product name is required');
+                if (!productData.get('link')) throw new Error('Product link is required');
+            } else {
+                if (!productData.name) throw new Error('Product name is required');
+                if (!productData.link) throw new Error('Product link is required');
+            }
+
+            return await CollectionRepository.addProduct(collectionId, productData);
+        } catch (error) {
+            console.error('CollectionService.addProduct error:', error);
             throw error;
         }
     }

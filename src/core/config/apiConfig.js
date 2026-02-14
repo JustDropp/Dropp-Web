@@ -13,6 +13,7 @@ export const API_CONFIG = {
         COLLECTION_BY_ID: '/c/getCollectionById',
         EXPLORE: '/c/explore/collections',
         USERS: '/user/',
+        ADD_PRODUCT: '/c/addProduct',
     },
     TIMEOUT: 10000,
 };

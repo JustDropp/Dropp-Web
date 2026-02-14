@@ -65,10 +65,23 @@ class CollectionRepository {
      * @returns {Promise<Object>}
      */
     async updateCollection(id, data) {
-        const response = await apiClient.put(`${API_CONFIG.ENDPOINTS.COLLECTION_BY_ID}/${id}`, {
+        // Use PATCH /c/{id} as requested
+        const response = await apiClient.patch(`${API_CONFIG.ENDPOINTS.COLLECTIONS}/${id}`, {
             title: data.title,
             desc: data.desc
         });
+        return response.data;
+    }
+
+    /**
+     * Like/Unlike a collection
+     * @param {string} id - Collection ID
+     * @returns {Promise<Object>}
+     */
+    async likeCollection(id) {
+        const url = `${API_CONFIG.ENDPOINTS.COLLECTIONS}/like/${id}`;
+        console.log('Repository: Sending POST request to:', url);
+        const response = await apiClient.get(url);
         return response.data;
     }
 
@@ -88,7 +101,7 @@ class CollectionRepository {
      * @returns {Promise<Object>}
      */
     async getUserCollections(userId) {
-        const response = await apiClient.get(`/c/user/${userId}`);
+        const response = await apiClient.get(`/c/getCollectionByUserId/${userId}`);
         return response.data;
     }
 
@@ -99,7 +112,29 @@ class CollectionRepository {
      */
     async searchCollections(query) {
         const response = await apiClient.get(`/c/search/${encodeURIComponent(query)}`);
-        return response.data.results;
+        // Ensure result is an array
+        const results = response.data?.results;
+        return Array.isArray(results) ? results : [];
+    }
+
+    /**
+     * Add a product to a collection
+     * @param {string} collectionId - Collection ID
+     * @param {Object} productData - Product data {name, link, imageUrl, description}
+     * @returns {Promise<Object>}
+     */
+    async addProduct(collectionId, productData) {
+        // Check if productData is FormData
+        const isFormData = productData instanceof FormData;
+
+        const config = isFormData ? {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        } : {};
+
+        const response = await apiClient.post(`${API_CONFIG.ENDPOINTS.ADD_PRODUCT}/${collectionId}`, productData, config);
+        return response.data;
     }
 }
 

@@ -9,7 +9,7 @@ import EditCollectionModal from './EditCollectionModal';
 import Snackbar from './Snackbar';
 import '../styles/Profile.css';
 
-const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh, isOwner = true }) => {
+const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh, isOwner = true, onUpdateCollection }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [sharePopupId, setSharePopupId] = useState(null);
@@ -102,7 +102,15 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRef
 
     const handleEditUpdate = (updatedCollection) => {
         const collectionId = editingCollection._id || editingCollection.id;
-        updateCollection(collectionId, updatedCollection);
+
+        // Use parent's update handler for instant local state update
+        if (onUpdateCollection) {
+            onUpdateCollection(collectionId, updatedCollection);
+        } else {
+            // Fallback to global context
+            updateCollection(collectionId, updatedCollection);
+        }
+
         setEditingCollection(null);
         if (onRefresh) onRefresh();
     };

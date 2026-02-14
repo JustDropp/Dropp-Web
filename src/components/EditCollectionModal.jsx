@@ -31,11 +31,13 @@ const EditCollectionModal = ({ isOpen, onClose, collection, onUpdate }) => {
             await CollectionService.updateCollection(collection._id, name, desc);
             setSnackbar({ show: true, message: 'Collection updated successfully!', type: 'success' });
 
-            // Notify parent component to refresh data
+            // Notify parent component to refresh data instantly
+            // Pass the updated partial data so parent can optimistically update
+            onUpdate({ ...collection, title: name, desc: desc });
+
             setTimeout(() => {
-                onUpdate();
                 onClose();
-            }, 1000);
+            }, 500);
         } catch (error) {
             console.error('Failed to update collection:', error);
             setSnackbar({

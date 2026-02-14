@@ -8,6 +8,7 @@ import UserService from '../core/services/UserService';
 import { useData } from '../contexts/DataContext';
 import '../styles/Profile.css';
 import { API_CONFIG } from '../core/config/apiConfig';
+import CollectionService from '../core/services/CollectionService';
 import { ShimmerProfileHeader, ShimmerCollectionGrid } from '../components/Shimmer';
 
 import EditProfileModal from '../components/EditProfileModal';
@@ -20,30 +21,62 @@ const Profile = () => {
     const [error, setError] = React.useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
-    // Use global collection state from DataContext
-    const { collections, fetchCollections, collectionsLoading } = useData();
+    // Local state for collections to use the specific endpoint
+    const [profileCollections, setProfileCollections] = React.useState([]);
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
                 setLoading(true);
+                setError(null);
 
-                // Fetch user profile
-                const profileData = await UserService.getUserProfile();
+                let profileData;
+
+                // Determine which user to fetch
+                if (username === 'me' || !username) {
+                    // Fetch own profile
+                    profileData = await UserService.getUserProfile();
+                } else {
+                    // Check if the username matches the current logged-in user (optimization)
+                    const currentUser = await UserService.getUserProfile().catch(() => null);
+
+                    if (currentUser && currentUser.username === username) {
+                        profileData = currentUser;
+                    } else {
+                        // Fetch specific user by username
+                        const result = await UserService.getUserByUsername(username);
+                        // Handle different response structures
+                        profileData = result.result || result.user || result;
+                    }
+                }
+
+                if (!profileData) {
+                    throw new Error("Profile data is empty");
+                }
+
                 setUser(profileData);
 
-                // Fetch collections using global state
-                await fetchCollections();
+                // Fetch collections using the specific endpoint
+                if (profileData._id || profileData.id) {
+                    const userId = profileData._id || profileData.id;
+                    const collectionsData = await CollectionService.getUserCollections(userId);
+                    setProfileCollections(collectionsData);
+                }
             } catch (err) {
                 console.error("Failed to fetch profile data:", err);
-                setError("Failed to load profile data.");
+                // Show specific error message
+                const errorMessage = err.response?.data?.message || err.message || "Failed to load profile data.";
+                setError(errorMessage);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProfileData();
-    }, [username, fetchCollections]);
+    }, [username]);
+
+    // Check if we are viewing our own profile
+    const isOwnProfile = username === 'me' || (user && user._id === (user.id || user._id)); // simplified check, can be improved with auth context
 
     const handleFollow = () => {
         console.log('Follow/Unfollow user');
@@ -64,7 +97,20 @@ const Profile = () => {
         }
     };
 
-    if (loading || collectionsLoading) {
+    // Refresh collections helper
+    const refreshCollections = async () => {
+        if (user && (user._id || user.id)) {
+            const userId = user._id || user.id;
+            try {
+                const collectionsData = await CollectionService.getUserCollections(userId);
+                setProfileCollections(collectionsData);
+            } catch (err) {
+                console.error("Failed to refresh collections:", err);
+            }
+        }
+    };
+
+    if (loading) {
         return (
             <div className="profile-page">
                 <div className="profile-container">
@@ -85,8 +131,15 @@ const Profile = () => {
         stats: {
             followers: user.followers || 0,
             following: user.following || 0,
-            collections: collections.length
+            collections: profileCollections.length
         }
+    };
+
+    // Instant update helper
+    const handleCollectionUpdate = (id, updatedData) => {
+        setProfileCollections(prev => prev.map(c =>
+            (c._id === id || c.id === id) ? { ...c, ...updatedData } : c
+        ));
     };
 
     return (
@@ -100,16 +153,17 @@ const Profile = () => {
             <div className="profile-container">
                 <ProfileHeader
                     user={adaptedUser}
-                    isOwnProfile={true}
+                    isOwnProfile={isOwnProfile}
                     onFollow={handleFollow}
                     onMessage={handleMessage}
                     onEditProfile={() => setIsEditModalOpen(true)}
                 />
 
                 <ProfileTabs
-                    collections={collections}
+                    collections={profileCollections}
                     activeTab="collections"
-                    onRefresh={fetchCollections}
+                    onRefresh={refreshCollections}
+                    onUpdateCollection={handleCollectionUpdate}
                 />
 
                 <AnimatePresence>

@@ -63,7 +63,7 @@ const Explore = () => {
         // TODO: Implement category filtering when backend supports it
     };
 
-    const displayedCollections = isSearching ? searchResults : collections;
+    const displayedCollections = isSearching ? (Array.isArray(searchResults) ? searchResults : []) : (Array.isArray(collections) ? collections : []);
 
     return (
         <motion.div

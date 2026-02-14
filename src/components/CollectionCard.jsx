@@ -72,7 +72,11 @@ const CollectionCard = ({
     };
 
     const getGridImages = () => {
-        const mainImage = getImageUrl(collection.displayImageUrl);
+        // Fix: Use generic placeholder if no display image, NEVER use profile image for collection cover
+        const mainImage = collection.displayImageUrl
+            ? getImageUrl(collection.displayImageUrl)
+            : API_CONFIG.BASE_URL + '/images/book.svg';
+
         return [mainImage, mainImage, mainImage];
     };
 
@@ -118,14 +122,6 @@ const CollectionCard = ({
 
                 {/* Hover Actions */}
                 <div className="board-actions">
-                    <button
-                        className={`board-action-btn like-btn ${isLiked ? 'liked' : ''}`}
-                        onClick={handleLikeClick}
-                        title="Like"
-                    >
-                        <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                    </button>
-
                     <button
                         className="board-action-btn"
                         onClick={handleShareClick}

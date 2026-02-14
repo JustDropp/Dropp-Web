@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import EditCollectionModal from '../components/EditCollectionModal';
+import AddProductModal from '../components/AddProductModal';
 import Snackbar from '../components/Snackbar';
 import Footer from '../components/Footer';
 import { ShimmerCollectionDetail } from '../components/Shimmer';
@@ -30,6 +31,7 @@ const CollectionDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
@@ -56,9 +58,17 @@ const CollectionDetailPage = () => {
             } else {
                 data = await CollectionService.getPublicCollection(id);
             }
+
             const collectionData = data?.result || data;
             setCollection(collectionData);
             setLikeCount(collectionData?.likes?.length || 0);
+
+            // Check if current user has liked
+            if (isAuthenticated && user) {
+                const userId = user.id || user._id;
+                const hasLiked = collectionData?.likes?.some(likeId => likeId === userId || likeId?._id === userId);
+                setIsLiked(!!hasLiked);
+            }
         } catch (error) {
             console.error('Failed to fetch collection:', error);
             setSnackbar({ show: true, message: 'Failed to load collection', type: 'error' });
@@ -110,17 +120,34 @@ const CollectionDetailPage = () => {
 
     const handleAddProducts = () => {
         if (!isOwner) return;
-        setSnackbar({ show: true, message: 'Add products feature coming soon!', type: 'info' });
+        setIsAddProductModalOpen(true);
     };
 
-    const handleLike = () => {
+    const handleLike = async () => {
         if (!isAuthenticated) {
             navigate('/signup');
             return;
         }
+
+        // Optimistic update
+        const previousIsLiked = isLiked;
+        const previousLikeCount = likeCount;
+
         setIsLiked(!isLiked);
         setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-        // TODO: Implement like API call
+
+        try {
+            console.log('Calling likeCollection API for id:', id);
+            await CollectionService.likeCollection(id);
+            console.log('likeCollection API success');
+        } catch (error) {
+            console.error('Failed to like collection:', error);
+            console.log('Reverting optimistic update due to error');
+            // Revert on error
+            setIsLiked(previousIsLiked);
+            setLikeCount(previousLikeCount);
+            setSnackbar({ show: true, message: 'Failed to like collection', type: 'error' });
+        }
     };
 
     const handleFollow = () => {
@@ -144,6 +171,10 @@ const CollectionDetailPage = () => {
     };
 
     const handleUpdate = () => {
+        fetchCollection();
+    };
+
+    const handleProductAdded = () => {
         fetchCollection();
     };
 
@@ -203,10 +234,14 @@ const CollectionDetailPage = () => {
                 transition={{ duration: 0.5 }}
             >
                 <div className="collection-detail-container">
-                    <Link to={isAuthenticated ? "/profile/me" : "/landing"} className="back-link">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="back-link"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
+                    >
                         <ArrowLeft size={16} />
-                        {isAuthenticated ? 'Back to Profile' : 'Explore Dropp'}
-                    </Link>
+                        Go Back
+                    </button>
 
                     {/* Creator Info Card - Always show with correct styling */}
                     {creator && (
@@ -373,6 +408,16 @@ const CollectionDetailPage = () => {
                         onClose={() => setIsEditModalOpen(false)}
                         collection={collection}
                         onUpdate={handleUpdate}
+                    />
+                )}
+
+                {/* Add Product Modal */}
+                {isOwner && (
+                    <AddProductModal
+                        isOpen={isAddProductModalOpen}
+                        onClose={() => setIsAddProductModalOpen(false)}
+                        collectionId={id}
+                        onProductAdded={handleProductAdded}
                     />
                 )}
 
