@@ -1,62 +1,65 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader, Link as LinkIcon, Image as ImageIcon, Type, FileText, Upload, Trash2 } from 'lucide-react';
+import { X, Loader, Link as LinkIcon, Image as ImageIcon, Type, FileText, Upload, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import Snackbar from './Snackbar';
 import '../styles/CreateCollectionModal.css';
 
 const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
     const [name, setName] = useState('');
-    const [link, setLink] = useState('');
+    const [links, setLinks] = useState(['']);
     const [description, setDescription] = useState('');
-    const [mediaFile, setMediaFile] = useState(null);
-    const [mediaPreview, setMediaPreview] = useState(null);
-    const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
+    const [mediaFiles, setMediaFiles] = useState([]);
+    const [mediaPreviews, setMediaPreviews] = useState([]);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
 
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            handleFileSelection(file);
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            handleFilesSelection(files);
         }
     };
 
-    const handleFileSelection = (file) => {
-        // Validate file type
-        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-            setSnackbar({ show: true, message: 'Please upload an image or video file', type: 'error' });
-            return;
-        }
+    const handleFilesSelection = (files) => {
+        const newFiles = [];
+        const newPreviews = [];
 
-        // Validate file size (e.g., 50MB limit for videos, 5MB for images)
-        const isVideo = file.type.startsWith('video/');
-        const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+        files.forEach(file => {
+            // Validate file type
+            if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                setSnackbar({ show: true, message: 'Please upload image or video files only', type: 'error' });
+                return;
+            }
 
-        if (file.size > maxSize) {
-            setSnackbar({ show: true, message: `File too large. Max size: ${isVideo ? '50MB' : '5MB'}`, type: 'error' });
-            return;
-        }
+            // Validate file size (e.g., 50MB limit)
+            if (file.size > 50 * 1024 * 1024) {
+                setSnackbar({ show: true, message: `File ${file.name} is too large (max 50MB)`, type: 'error' });
+                return;
+            }
 
-        setMediaFile(file);
-        setMediaType(isVideo ? 'video' : 'image');
+            newFiles.push(file);
+            newPreviews.push({
+                url: URL.createObjectURL(file),
+                type: file.type.startsWith('video/') ? 'video' : 'image',
+                name: file.name
+            });
+        });
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setMediaPreview(reader.result);
-        };
-        reader.readAsDataURL(file);
+        setMediaFiles(prev => [...prev, ...newFiles]);
+        setMediaPreviews(prev => [...prev, ...newPreviews]);
     };
 
     const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            handleFileSelection(file);
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            handleFilesSelection(files);
         }
     };
 
@@ -65,12 +68,42 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
         e.stopPropagation();
     };
 
-    const removeMedia = () => {
-        setMediaFile(null);
-        setMediaPreview(null);
-        setMediaType(null);
+    const removeMedia = (index) => {
+        setMediaFiles(prev => prev.filter((_, i) => i !== index));
+        setMediaPreviews(prev => {
+            // Revoke URL to avoid memory leaks
+            URL.revokeObjectURL(prev[index].url);
+            return prev.filter((_, i) => i !== index);
+        });
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+    };
+
+    const removeAllMedia = () => {
+        mediaPreviews.forEach(preview => URL.revokeObjectURL(preview.url));
+        setMediaFiles([]);
+        setMediaPreviews([]);
+        setCurrentMediaIndex(0);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleLinkChange = (index, value) => {
+        const newLinks = [...links];
+        newLinks[index] = value;
+        setLinks(newLinks);
+    };
+
+    const handleAddLink = () => {
+        setLinks([...links, '']);
+    };
+
+    const handleRemoveLink = (index) => {
+        if (links.length > 1) {
+            const newLinks = links.filter((_, i) => i !== index);
+            setLinks(newLinks);
         }
     };
 
@@ -82,12 +115,15 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
             setSnackbar({ show: true, message: 'Product name is required', type: 'error' });
             return;
         }
-        if (!link.trim()) {
-            setSnackbar({ show: true, message: 'Product link is required', type: 'error' });
+
+        const validLinks = links.filter(l => l.trim() !== '');
+        if (validLinks.length === 0) {
+            setSnackbar({ show: true, message: 'At least one product link is required', type: 'error' });
             return;
         }
-        if (!mediaFile) {
-            setSnackbar({ show: true, message: 'Please upload an image or video', type: 'error' });
+
+        if (mediaFiles.length === 0) {
+            setSnackbar({ show: true, message: 'Please upload at least one image or video', type: 'error' });
             return;
         }
         if (!description.trim()) {
@@ -95,11 +131,14 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
             return;
         }
 
-        try {
-            new URL(link);
-        } catch (_) {
-            setSnackbar({ show: true, message: 'Please enter a valid product link URL', type: 'error' });
-            return;
+        // Validate all non-empty links
+        for (const link of validLinks) {
+            try {
+                new URL(link);
+            } catch (_) {
+                setSnackbar({ show: true, message: `Invalid URL: ${link}`, type: 'error' });
+                return;
+            }
         }
 
         setLoading(true);
@@ -107,9 +146,16 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
             // Create FormData
             const formData = new FormData();
             formData.append('name', name.trim());
-            formData.append('link', link.trim());
-            formData.append('description', description.trim());
-            formData.append('media', mediaFile);
+            // Join links with comma
+            formData.append('link', validLinks.join(','));
+            formData.append('desc', description.trim());
+
+            // Append each file with 'media' key to support multiple files
+            // Some backends expect 'media[]', others just repeated 'media'
+            // Based on typical multer usage, repeated key works
+            mediaFiles.forEach(file => {
+                formData.append('media', file);
+            });
 
             await CollectionService.addProduct(collectionId, formData);
 
@@ -132,9 +178,12 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
 
     const resetForm = () => {
         setName('');
-        setLink('');
+        setLinks(['']);
         setDescription('');
-        removeMedia();
+        setLinks(['']);
+        setDescription('');
+        removeAllMedia();
+        setCurrentMediaIndex(0);
     };
 
     const handleClose = () => {
@@ -173,130 +222,232 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="modal-form landscape-layout">
-                        {/* LEFT PANEL: MEDIA */}
-                        <div className="form-left-panel">
-                            <div className="form-group media-group">
-                                <label style={{ marginBottom: '10px' }}>
-                                    <ImageIcon size={16} />
-                                    Media *
-                                </label>
+                    <form onSubmit={handleSubmit} className="modal-form-wrapper">
+                        <div className="modal-body-content landscape-layout">
+                            {/* LEFT PANEL: MEDIA */}
+                            <div className="form-left-panel">
+                                <div className="form-group media-group">
+                                    <label style={{ marginBottom: '10px' }}>
+                                        <ImageIcon size={16} />
+                                        Media *
+                                    </label>
 
-                                {mediaPreview ? (
-                                    <div className="media-preview-container">
-                                        {mediaType === 'video' ? (
-                                            <video src={mediaPreview} controls className="media-preview" />
-                                        ) : (
-                                            <img src={mediaPreview} alt="Preview" className="media-preview" />
-                                        )}
-                                        <button
-                                            type="button"
-                                            className="remove-media-btn"
-                                            onClick={removeMedia}
-                                            disabled={loading}
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="file-upload-area"
-                                        onClick={() => fileInputRef.current.click()}
-                                        onDragOver={handleDragOver}
-                                        onDrop={handleDrop}
-                                    >
-                                        <Upload size={32} className="file-upload-icon" />
-                                        <div className="file-upload-text-group">
-                                            <span className="file-upload-text">Upload Media</span>
-                                            <span className="file-upload-subtext">Drag & drop or clip</span>
+                                    {mediaPreviews.length > 0 ? (
+                                        <div className="media-carousel-container">
+                                            {/* Media Display */}
+                                            <div className="carousel-media-wrapper">
+                                                {mediaPreviews[currentMediaIndex].type === 'video' ? (
+                                                    <video
+                                                        src={mediaPreviews[currentMediaIndex].url}
+                                                        className="carousel-media"
+                                                        controls
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={mediaPreviews[currentMediaIndex].url}
+                                                        alt={`Preview ${currentMediaIndex + 1}`}
+                                                        className="carousel-media"
+                                                    />
+                                                )}
+
+                                                {/* Counter Badge */}
+                                                <div className="carousel-counter">
+                                                    {currentMediaIndex + 1}/{mediaPreviews.length}
+                                                </div>
+
+                                                {/* Remove Button */}
+                                                <button
+                                                    type="button"
+                                                    className="carousel-remove-btn"
+                                                    onClick={() => {
+                                                        removeMedia(currentMediaIndex);
+                                                        if (currentMediaIndex >= mediaPreviews.length - 1 && currentMediaIndex > 0) {
+                                                            setCurrentMediaIndex(currentMediaIndex - 1);
+                                                        }
+                                                    }}
+                                                    disabled={loading}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+
+                                            {/* Navigation Controls */}
+                                            {mediaPreviews.length > 1 && (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        className="carousel-nav-btn prev"
+                                                        onClick={() => setCurrentMediaIndex(prev => Math.max(0, prev - 1))}
+                                                        disabled={currentMediaIndex === 0}
+                                                    >
+                                                        <ChevronLeft size={20} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="carousel-nav-btn next"
+                                                        onClick={() => setCurrentMediaIndex(prev => Math.min(mediaPreviews.length - 1, prev + 1))}
+                                                        disabled={currentMediaIndex === mediaPreviews.length - 1}
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {/* Add More Button (Floating) */}
+                                            <button
+                                                type="button"
+                                                className="carousel-add-btn"
+                                                onClick={() => fileInputRef.current.click()}
+                                                disabled={loading}
+                                                aria-label="Add more media"
+                                                style={{
+                                                    fontSize: 0, /* Ensure no residual text height */
+                                                }}
+                                            >
+                                                <Plus size={20} />
+                                            </button>
                                         </div>
+                                    ) : (
+                                        <div
+                                            className="file-upload-area"
+                                            onClick={() => fileInputRef.current.click()}
+                                            onDragOver={handleDragOver}
+                                            onDrop={handleDrop}
+                                        >
+                                            <Plus size={48} className="file-upload-icon" style={{ color: 'var(--text-secondary)' }} />
+                                        </div>
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                        style={{ display: 'none' }}
+                                        accept="image/*,video/*"
+                                        multiple
+                                    />
+                                </div>
+                            </div>
+
+                            {/* RIGHT PANEL: DETAILS */}
+                            <div className="form-right-panel">
+                                <div className="form-fields-scroll">
+                                    <div className="form-group">
+                                        <label htmlFor="product-name">
+                                            <Type size={16} />
+                                            Name *
+                                        </label>
                                         <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            onChange={handleFileChange}
-                                            style={{ display: 'none' }}
-                                            accept="image/*,video/*"
+                                            id="product-name"
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="Product Name"
+                                            disabled={loading}
+                                            className="compact-input"
                                         />
                                     </div>
-                                )}
-                            </div>
-                        </div>
 
-                        {/* RIGHT PANEL: DETAILS */}
-                        <div className="form-right-panel">
-                            <div className="form-fields-scroll">
-                                <div className="form-group">
-                                    <label htmlFor="product-name">
-                                        <Type size={16} />
-                                        Name *
-                                    </label>
-                                    <input
-                                        id="product-name"
-                                        type="text"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="Product Name"
-                                        disabled={loading}
-                                        className="compact-input"
-                                    />
+                                    <div className="form-group">
+                                        <label>
+                                            <LinkIcon size={16} />
+                                            Links *
+                                        </label>
+                                        {links.map((link, index) => (
+                                            <div key={index} className="link-input-group" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                <input
+                                                    type="url"
+                                                    value={link}
+                                                    onChange={(e) => handleLinkChange(index, e.target.value)}
+                                                    placeholder="Product URL"
+                                                    disabled={loading}
+                                                    className="compact-input"
+                                                    style={{ flex: 1 }}
+                                                />
+                                                {links.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveLink(index)}
+                                                        className="remove-link-btn"
+                                                        disabled={loading}
+                                                        style={{
+                                                            background: 'var(--bg-tertiary)',
+                                                            border: '1px solid var(--border-color)',
+                                                            color: 'var(--text-secondary)',
+                                                            borderRadius: 'var(--radius-md)',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            width: '36px'
+                                                        }}
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={handleAddLink}
+                                            className="add-link-btn"
+                                            disabled={loading}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: 'var(--accent-blue)',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '500',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.25rem',
+                                                marginTop: '0.25rem'
+                                            }}
+                                        >
+                                            <Plus size={14} /> Add another link
+                                        </button>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label htmlFor="product-desc">
+                                            <FileText size={16} />
+                                            Description *
+                                        </label>
+                                        <textarea
+                                            id="product-desc"
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            placeholder="Why do you love this?"
+                                            disabled={loading}
+                                            rows={4}
+                                            className="compact-input"
+                                        />
+                                    </div>
                                 </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="product-link">
-                                        <LinkIcon size={16} />
-                                        Link *
-                                    </label>
-                                    <input
-                                        id="product-link"
-                                        type="url"
-                                        value={link}
-                                        onChange={(e) => setLink(e.target.value)}
-                                        placeholder="Product URL"
+                                <div className="right-panel-actions">
+                                    <button
+                                        type="button"
+                                        className="btn-secondary"
+                                        onClick={handleClose}
                                         disabled={loading}
-                                        className="compact-input"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="product-desc">
-                                        <FileText size={16} />
-                                        Description *
-                                    </label>
-                                    <textarea
-                                        id="product-desc"
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="Why do you love this?"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="btn-primary"
                                         disabled={loading}
-                                        rows={4}
-                                        className="compact-input"
-                                    />
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <Loader className="spinner" size={16} />
+                                                Adding...
+                                            </>
+                                        ) : (
+                                            'Add'
+                                        )}
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div className="modal-actions compact-actions">
-                                <button
-                                    type="button"
-                                    className="btn-secondary"
-                                    onClick={handleClose}
-                                    disabled={loading}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn-primary"
-                                    disabled={loading}
-                                >
-                                    {loading ? (
-                                        <>
-                                            <Loader className="spinner" size={16} />
-                                            Adding...
-                                        </>
-                                    ) : (
-                                        'Add'
-                                    )}
-                                </button>
                             </div>
                         </div>
                     </form>
@@ -310,8 +461,9 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
                     />
                 )}
             </motion.div>
-        </AnimatePresence>
+        </AnimatePresence >
     );
 };
 
 export default AddProductModal;
+// Fixed mediaFile reference error

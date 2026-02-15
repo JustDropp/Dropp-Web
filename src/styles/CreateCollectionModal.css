@@ -210,3 +210,329 @@
         justify-content: center;
     }
 }
+
+/* Carousel Styles */
+.media-carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-media-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.carousel-media {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+}
+
+.carousel-counter {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.carousel-remove-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.carousel-remove-btn:hover {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 5;
+}
+
+.carousel-nav-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-nav-btn:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.carousel-nav-btn.prev {
+    left: 10px;
+}
+
+.carousel-nav-btn.next {
+    right: 10px;
+}
+
+.carousel-add-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-add-btn:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+/* Landscape Modal Styles */
+.create-collection-modal.modal-landscape {
+    max-width: 900px;
+    width: 90vw;
+    height: 85vh;
+    /* Fixed height to force internal scrolling */
+    max-height: 800px;
+    /* Cap it for very large screens */
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+}
+
+.modal-form-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.modal-body-content.landscape-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 1.5rem;
+}
+
+/* Left Panel: Media */
+.form-left-panel {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent spillover */
+}
+
+.media-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.file-wait-area {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--bg-secondary);
+    transition: all 0.2s;
+}
+
+.file-wait-area:hover {
+    border-color: var(--accent-blue);
+    background: var(--bg-tertiary);
+}
+
+.file-upload-area {
+    flex: 1;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--bg-secondary);
+    min-height: 300px;
+}
+
+.file-upload-area:hover {
+    border-color: var(--accent-blue);
+    background: var(--bg-tertiary);
+}
+
+.media-preview-container {
+    flex: 1;
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 300px;
+}
+
+.media-preview {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    /* Ensure full image is visible */
+    border-radius: var(--radius-sm);
+}
+
+.remove-media-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.remove-media-btn:hover {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+/* Right Panel: Details */
+.form-right-panel {
+    flex: 1.8;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    /* Ensure it contains its children */
+}
+
+.form-fields-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    padding-left: 12px;
+    /* Increased further to prevent border clipping */
+    padding-top: 12px;
+    /* Increased further to prevent border clipping */
+    min-height: 0;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.form-fields-scroll::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+}
+
+/* Compact Inputs for Landscape */
+.compact-input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+/* Right Panel Actions */
+.right-panel-actions {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-shrink: 0;
+    background: var(--bg-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .create-collection-modal.modal-landscape {
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    .modal-body-content.landscape-layout {
+        flex-direction: column;
+        gap: 1.5rem;
+        overflow-y: auto;
+    }
+
+    .form-left-panel {
+        min-height: 250px;
+        flex: none;
+    }
+
+    .form-right-panel {
+        flex: none;
+    }
+}

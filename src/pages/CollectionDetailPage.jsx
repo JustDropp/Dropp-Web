@@ -11,7 +11,9 @@ import {
     Heart,
     UserPlus,
     UserCheck,
-    Package
+    Package,
+    ExternalLink,
+    LayoutGrid
 } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import EditCollectionModal from '../components/EditCollectionModal';
@@ -35,6 +37,7 @@ const CollectionDetailPage = () => {
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
+    const [products, setProducts] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
 
     // Get creator info from collection
@@ -61,6 +64,9 @@ const CollectionDetailPage = () => {
 
             const collectionData = data?.result || data;
             setCollection(collectionData);
+
+
+
             setLikeCount(collectionData?.likes?.length || 0);
 
             // Check if current user has liked
@@ -76,6 +82,25 @@ const CollectionDetailPage = () => {
             setLoading(false);
         }
     };
+
+    const fetchProducts = async () => {
+        if (!id) return;
+        try {
+            const data = await CollectionService.getProducts(id);
+            // Handle valid response structures: data.results (paginated object), data (array), or productList inside data
+            const productList = data?.results || data?.products || (Array.isArray(data) ? data : []);
+            console.log('Fetched products:', productList); // Debugging
+            setProducts(productList);
+        } catch (error) {
+            console.error('Failed to fetch products:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (id) {
+            fetchProducts();
+        }
+    }, [id]);
 
     const handleShare = () => {
         const url = `${window.location.origin}/c/${id}`;
@@ -176,12 +201,17 @@ const CollectionDetailPage = () => {
 
     const handleProductAdded = () => {
         fetchCollection();
+        fetchProducts();
     };
 
     const getImageUrl = (url) => {
         if (!url) return API_CONFIG.BASE_URL + '/images/default.webp';
         if (url.startsWith('http')) return url;
-        return API_CONFIG.BASE_URL + url;
+
+        // Ensure proper encoding of filename
+        const cleanUrl = url.split('/').map(part => encodeURIComponent(part)).join('/');
+
+        return API_CONFIG.BASE_URL + cleanUrl.replace(/%2F/g, '/');
     };
 
     const formatCount = (count) => {
@@ -294,6 +324,9 @@ const CollectionDetailPage = () => {
                                 <span className="collection-stat-badge">
                                     <Heart size={14} /> {likeCount} likes
                                 </span>
+                                <span className="collection-stat-badge">
+                                    <LayoutGrid size={14} /> {products?.length || collection.products?.length || 0} products
+                                </span>
                             </div>
                         </div>
 
@@ -357,28 +390,62 @@ const CollectionDetailPage = () => {
                     <div className="collection-content">
                         <h3 className="section-title">Products</h3>
 
-                        {/* Empty state - no products yet */}
-                        <div className="empty-products-card">
-                            <div className="empty-products-icon">
-                                <Package size={48} strokeWidth={1.5} />
+                        {/* Product Grid */}
+                        {products && products.length > 0 ? (
+                            <div className="product-masonry-grid">
+                                {products.map((product, index) => {
+                                    // Generate a random height for placeholder if no image, or use aspect ratio if image exists
+                                    // ideally we'd use real aspect ratios from metadata, but for now we rely on img tag
+                                    return (
+                                        <div key={product._id || index} className="product-card-masonry">
+                                            {product.media && product.media.length > 0 ? (
+                                                <div className="product-image-container">
+                                                    <img
+                                                        src={getImageUrl(product.media[0])}
+                                                        alt={product.name || 'Product'}
+                                                        className="product-image"
+                                                        onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/book.svg'; }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    className="product-placeholder-image"
+                                                    style={{ height: `${Math.floor(Math.random() * 200) + 150}px` }}
+                                                >
+                                                    <span className="placeholder-text">{product.name?.[0] || 'P'}</span>
+                                                </div>
+                                            )}
+                                            <div className="product-content">
+                                                <h4 className="product-name">{product.name || 'Unnamed Product'}</h4>
+                                                {product.desc && <p className="product-subtitle">{product.desc}</p>}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            <h4 className="empty-products-title">No products yet</h4>
-                            <p className="empty-products-text">
-                                {isOwner
-                                    ? 'Start adding products to your collection to share with others.'
-                                    : 'This collection doesn\'t have any products yet.'
-                                }
-                            </p>
-                            {isOwner && (
-                                <button
-                                    className="add-products-btn"
-                                    onClick={handleAddProducts}
-                                >
-                                    <Plus size={18} />
-                                    Add Products
-                                </button>
-                            )}
-                        </div>
+                        ) : (
+                            <div className="empty-products-card">
+                                <div className="empty-products-icon">
+                                    <Package size={48} strokeWidth={1.5} />
+                                </div>
+                                <h4 className="empty-products-title">No products yet</h4>
+                                <p className="empty-products-text">
+                                    {isOwner
+                                        ? 'Start adding products to your collection to share with others.'
+                                        : 'This collection doesn\'t have any products yet.'
+                                    }
+                                </p>
+                                {isOwner && (
+                                    <button
+                                        className="add-products-btn"
+                                        onClick={handleAddProducts}
+                                    >
+                                        <Plus size={18} />
+                                        Add Products
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* CTA Section for unauthenticated users */}

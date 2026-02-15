@@ -195,7 +195,7 @@ const CollectionCard = ({
                     <h4 className="board-title">{collection.title}</h4>
                     {creator && (
                         <span className="board-creator-name" onClick={handleCreatorClick}>
-                            {creator.fullName || creator.username}
+                            {creator.fullName || creator.username} • {collection.products?.length || 0} products • {likeCount} likes
                         </span>
                     )}
                 </div>

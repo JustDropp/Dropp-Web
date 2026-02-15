@@ -192,6 +192,21 @@ class CollectionService {
             throw error;
         }
     }
+
+    /**
+     * Get products in a collection
+     * @param {string} collectionId - Collection ID
+     * @returns {Promise<Array>}
+     */
+    async getProducts(collectionId) {
+        try {
+            if (!collectionId) throw new Error('Collection ID is required');
+            return await CollectionRepository.getProducts(collectionId);
+        } catch (error) {
+            console.error('CollectionService.getProducts error:', error);
+            throw error;
+        }
+    }
 }
 
 export default new CollectionService();

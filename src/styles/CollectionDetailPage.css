@@ -695,3 +695,145 @@
         min-height: 44px;
     }
 }
+
+/* Product Grid Styles */
+/* Product Grid Styles - Masonry Layout */
+.product-masonry-grid {
+    column-count: 4;
+    column-gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.product-card-masonry {
+    break-inside: avoid;
+    margin-bottom: var(--spacing-md);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card-masonry:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.product-card-masonry .product-image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+}
+
+.product-card-masonry .product-image {
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card-masonry:hover .product-image {
+    transform: scale(1.05);
+}
+
+/* Overlay Content Styles */
+.product-card-masonry .product-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%);
+    color: #fff;
+    z-index: 2;
+    pointer-events: none;
+    /* Let clicks pass through to the image/card */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card-masonry:hover .product-content {
+    opacity: 1;
+}
+
+.product-card-masonry .product-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--font-display);
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+    transform: translateY(10px);
+    transition: transform 0.3s ease;
+}
+
+.product-card-masonry:hover .product-name {
+    transform: translateY(0);
+}
+
+.product-subtitle {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.25rem 0 0 0;
+    font-weight: 400;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transform: translateY(10px);
+    transition: transform 0.3s ease 0.05s;
+    /* Slight delay */
+    opacity: 0;
+}
+
+.product-card-masonry:hover .product-subtitle {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.product-placeholder-image {
+    width: 100%;
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+}
+
+.placeholder-text {
+    font-size: 3rem;
+    font-weight: 700;
+    opacity: 0.3;
+    font-family: var(--font-display);
+}
+
+/* Responsive Masonry */
+@media (max-width: 1024px) {
+    .product-masonry-grid {
+        column-count: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-masonry-grid {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-masonry-grid {
+        column-count: 1;
+    }
+}

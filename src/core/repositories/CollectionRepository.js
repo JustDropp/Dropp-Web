@@ -136,6 +136,16 @@ class CollectionRepository {
         const response = await apiClient.post(`${API_CONFIG.ENDPOINTS.ADD_PRODUCT}/${collectionId}`, productData, config);
         return response.data;
     }
+
+    /**
+     * Get products in a collection
+     * @param {string} collectionId - Collection ID
+     * @returns {Promise<Object>}
+     */
+    async getProducts(collectionId) {
+        const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.ADD_PRODUCT}/${collectionId}`);
+        return response.data;
+    }
 }
 
 export default new CollectionRepository();
