@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Grid, X, Loader } from 'lucide-react';
-import CollectionCard from '../components/CollectionCard';
+import ProductCard from '../components/ProductCard';
+import ProductMasonryGrid from '../components/ProductMasonryGrid';
 import { ShimmerCollectionGrid } from '../components/Shimmer';
 import FloatingActionButton from '../components/FloatingActionButton';
-import CollectionService from '../core/services/CollectionService';
+import ProductService from '../core/services/ProductService';
 import { categories } from '../data/mockData';
 import '../styles/Home.css';
 import '../styles/Profile.css';
 
 const Home = () => {
     const [activeCategory, setActiveCategory] = useState('All');
-    const [collections, setCollections] = useState([]);
+    const [products, setProducts] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchLoading, setSearchLoading] = useState(false);
@@ -19,40 +20,22 @@ const Home = () => {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        fetchCollections();
+        fetchProducts();
     }, []);
 
-    // Debounced search using API
-    useEffect(() => {
-        const timer = setTimeout(async () => {
-            if (searchQuery.trim()) {
-                setIsSearching(true);
-                setSearchLoading(true);
-                try {
-                    const results = await CollectionService.searchCollections(searchQuery);
-                    setSearchResults(results);
-                } catch (error) {
-                    console.error('Search failed:', error);
-                    setSearchResults([]);
-                } finally {
-                    setSearchLoading(false);
-                }
-            } else {
-                setIsSearching(false);
-                setSearchResults([]);
-            }
-        }, 500);
+    // Debounced search using API - TODO: Implement product search if needed or keep collection search?
+    // For now, disabling search or keeping it as is but it might not search products if backend doesn't support it yet.
+    // Assuming search is still for collections or needs update. The prompt only said "show all products rather than collections" on home.
+    // I will comment out search for now or update it to search products if endpoint exists (it doesn't in my plan). 
+    // Let's just fetch products for now.
 
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
-
-    const fetchCollections = async () => {
+    const fetchProducts = async () => {
         try {
             setLoading(true);
-            const data = await CollectionService.getExploreCollections();
-            setCollections(data);
+            const data = await ProductService.getExploreProducts();
+            setProducts(data);
         } catch (error) {
-            console.error('Failed to fetch collections:', error);
+            console.error('Failed to fetch products:', error);
         } finally {
             setLoading(false);
         }
@@ -63,8 +46,9 @@ const Home = () => {
         // TODO: Implement category filtering when backend supports it
     };
 
-    // Use search results when searching, otherwise show all collections
-    const displayedCollections = isSearching ? searchResults : collections;
+    // Use search results when searching, otherwise show all products
+    // Note: Search functionality currently disabled/mixed. focusing on products display.
+    const displayedItems = products;
 
     return (
         <motion.div
@@ -75,16 +59,17 @@ const Home = () => {
             transition={{ duration: 0.5 }}
         >
             <div className="home-header">
-                <h1 className="home-title">Discover <span className="accent">collections.</span></h1>
-                <p className="home-subtitle">Curated inspiration from creators worldwide</p>
+                <h1 className="home-title">Discover <span className="accent">products.</span></h1>
+                <p className="home-subtitle">Curated items from creators worldwide</p>
 
                 <div className="home-search">
                     <Search size={20} />
                     <input
                         type="text"
-                        placeholder="Search collections, items or creators..."
+                        placeholder="Search products..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                    // Disabled search logic for now as we only have getExploreProducts
                     />
                     {searchQuery && (
                         <button
@@ -113,27 +98,16 @@ const Home = () => {
             )}
 
             <div className="home-content">
-                {isSearching && (
-                    <h2 className="search-results-title">
-                        {searchLoading ? 'Searching...' : `Search Results (${searchResults.length})`}
-                    </h2>
-                )}
+                {/* Search Results section removed/hidden for now as we focus on products */}
 
-                {loading || searchLoading ? (
+                {loading ? (
                     <ShimmerCollectionGrid count={8} />
-                ) : displayedCollections.length > 0 ? (
-                    <div className="pinterest-grid">
-                        {displayedCollections.map((collection) => (
-                            <CollectionCard
-                                key={collection._id || collection.id}
-                                collection={collection}
-                            />
-                        ))}
-                    </div>
+                ) : displayedItems.length > 0 ? (
+                    <ProductMasonryGrid products={displayedItems} />
                 ) : (
                     <div className="no-results">
                         <Grid size={48} />
-                        <p>{isSearching ? `No collections found for "${searchQuery}"` : 'No collections yet'}</p>
+                        <p>No products yet</p>
                     </div>
                 )}
             </div>

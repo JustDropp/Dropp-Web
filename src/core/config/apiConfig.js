@@ -14,6 +14,7 @@ export const API_CONFIG = {
         EXPLORE: '/c/explore/collections',
         USERS: '/user/',
         ADD_PRODUCT: '/product/cId',
+        PRODUCT_EXPLORE: '/product/explore',
     },
     TIMEOUT: 10000,
 };
