@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Share2, MoreHorizontal, Trash2, Link2, Copy, Check, Heart } from 'lucide-react';
+import { Share2, MoreHorizontal, Trash2, Link2, Copy, Check, Heart, Edit2 } from 'lucide-react';
+import AddProductModal from './AddProductModal';
 import { API_CONFIG } from '../core/config/apiConfig';
 import PLACEHOLDER_IMAGE from '../utils/placeholder';
 import ProductService from '../core/services/ProductService';
@@ -13,6 +14,7 @@ const ProductCard = ({ product, onDelete }) => {
     const navigate = useNavigate();
     const [openMenu, setOpenMenu] = useState(false);
     const [showShare, setShowShare] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [copied, setCopied] = useState(false);
     const [isLiked, setIsLiked] = useState(
         product?.likes?.some(likeId => likeId === user?._id) || false
@@ -106,6 +108,21 @@ const ProductCard = ({ product, onDelete }) => {
     const displayImage = getImageUrl(product.image || product.imageUrl || (product.media && product.media[0]));
     const creatorImage = creator?.profileImageUrl ? getImageUrl(creator.profileImageUrl) : API_CONFIG.BASE_URL + '/images/default.webp';
 
+    const handleEdit = (e) => {
+        e.stopPropagation();
+        setOpenMenu(false);
+        setShowEditModal(true);
+    };
+
+    const handleProductUpdated = () => {
+        // Refresh logic - ideally we should reload the product or parent list.
+        // For now, we rely on the parent or page refresh.
+        // If onDelete is actually onRefresh, we could call it.
+        // Or we assume the user will see changes after refresh.
+        // A simple way is to reload window or navigate.
+        window.location.reload();
+    };
+
     // Close popups on outside click
     React.useEffect(() => {
         const handleClickOutside = () => {
@@ -157,6 +174,10 @@ const ProductCard = ({ product, onDelete }) => {
                                 </button>
                                 {openMenu && (
                                     <div className="board-dropdown" onClick={(e) => e.stopPropagation()}>
+                                        <button className="edit-btn" onClick={handleEdit}>
+                                            <Edit2 size={16} />
+                                            Edit
+                                        </button>
                                         <button className="delete-btn" onClick={handleDelete}>
                                             <Trash2 size={16} />
                                             Delete
@@ -222,6 +243,14 @@ const ProductCard = ({ product, onDelete }) => {
                     onClose={() => setSnackbar({ ...snackbar, show: false })}
                 />
             )}
+
+            {/* Edit Modal */}
+            <AddProductModal
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                productToEdit={product}
+                onProductAdded={handleProductUpdated}
+            />
         </>
     );
 };

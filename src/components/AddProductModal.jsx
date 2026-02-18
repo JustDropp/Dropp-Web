@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader, Link as LinkIcon, Image as ImageIcon, Type, FileText, Upload, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
+import ProductService from '../core/services/ProductService';
 import Snackbar from './Snackbar';
 import '../styles/CreateCollectionModal.css';
 
-const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
+const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded, productToEdit = null }) => {
+    const isEditMode = !!productToEdit;
     const [name, setName] = useState('');
     const [links, setLinks] = useState(['']);
     const [description, setDescription] = useState('');
@@ -16,6 +18,45 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
 
     const fileInputRef = useRef(null);
+
+    // Pre-fill for edit mode
+    React.useEffect(() => {
+        if (isOpen && productToEdit) {
+            setName(productToEdit.name || productToEdit.title || '');
+            setDescription(productToEdit.desc || productToEdit.description || '');
+
+            // Handle links
+            const productLinks = productToEdit.link ? productToEdit.link.split(',') : [''];
+            setLinks(productLinks.length > 0 ? productLinks : ['']);
+
+            // Handle existing media
+            // Note: We cannot convert URLs back to File objects easily for re-upload without fetching them.
+            // For this implementation, we will show existing media as previews but they won't be in 'mediaFiles'.
+            // If user adds new files, they go to mediaFiles.
+            // A more complex implementation would separate existing vs new media.
+            // For simplicity, we will assume standard update where we just send new files or if we want to keep existing,
+            // the backend likely preserves them if not overwritten, OR we need to display them.
+
+            // Given the complexity of file inputs, let's just clear media for now or show existing if possible.
+            // If the prompt implies full edit capability including media, we might need a way to say "keep existing".
+            // However, HTML file input cannot be pre-populated.
+            // Let's populate previews from URL.
+
+            const existingMedia = productToEdit.media || (productToEdit.image ? [productToEdit.image] : []) || [];
+            if (existingMedia.length > 0) {
+                const previews = existingMedia.map(url => ({
+                    url: url.startsWith('http') ? url : import.meta.env.VITE_API_BASE_URL + url,
+                    type: url.match(/\.(mp4|webm|ogg)$/i) ? 'video' : 'image', // Basic guess
+                    name: 'Existing Media',
+                    isExisting: true
+                }));
+                setMediaPreviews(previews);
+            }
+        } else if (isOpen && !productToEdit) {
+            // Reset if opening in add mode
+            resetForm();
+        }
+    }, [isOpen, productToEdit]);
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
@@ -122,7 +163,7 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
             return;
         }
 
-        if (mediaFiles.length === 0) {
+        if (mediaFiles.length === 0 && mediaPreviews.length === 0) {
             setSnackbar({ show: true, message: 'Please upload at least one image or video', type: 'error' });
             return;
         }
@@ -157,13 +198,17 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
                 formData.append('media', file);
             });
 
-            await CollectionService.addProduct(collectionId, formData);
-
-            setSnackbar({ show: true, message: 'Product added successfully!', type: 'success' });
+            if (isEditMode) {
+                await ProductService.updateProduct(productToEdit._id, formData);
+                setSnackbar({ show: true, message: 'Product updated successfully!', type: 'success' });
+            } else {
+                await CollectionService.addProduct(collectionId, formData);
+                setSnackbar({ show: true, message: 'Product added successfully!', type: 'success' });
+            }
 
             setTimeout(() => {
                 resetForm();
-                onProductAdded();
+                if (onProductAdded) onProductAdded();
                 onClose();
             }, 1000);
 
@@ -212,7 +257,7 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="modal-header">
-                        <h2>Add Product</h2>
+                        <h2>{isEditMode ? 'Edit Product' : 'Add Product'}</h2>
                         <button
                             className="modal-close-btn"
                             onClick={handleClose}
@@ -444,7 +489,7 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded }) => {
                                                 Adding...
                                             </>
                                         ) : (
-                                            'Add'
+                                            isEditMode ? 'Update' : 'Add'
                                         )}
                                     </button>
                                 </div>

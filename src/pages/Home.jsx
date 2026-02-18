@@ -20,14 +20,38 @@ const Home = () => {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        fetchProducts();
-    }, []);
+        if (!isSearching) {
+            fetchProducts();
+        }
+    }, [isSearching]);
 
-    // Debounced search using API - TODO: Implement product search if needed or keep collection search?
-    // For now, disabling search or keeping it as is but it might not search products if backend doesn't support it yet.
-    // Assuming search is still for collections or needs update. The prompt only said "show all products rather than collections" on home.
-    // I will comment out search for now or update it to search products if endpoint exists (it doesn't in my plan). 
-    // Let's just fetch products for now.
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery.trim()) {
+                handleSearch(searchQuery);
+            } else {
+                setIsSearching(false);
+                setSearchResults([]);
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
+
+    const handleSearch = async (query) => {
+        if (!query.trim()) return;
+
+        try {
+            setSearchLoading(true);
+            setIsSearching(true);
+            const results = await ProductService.searchProducts(query);
+            setSearchResults(results);
+        } catch (error) {
+            console.error('Search failed:', error);
+        } finally {
+            setSearchLoading(false);
+        }
+    };
 
     const fetchProducts = async () => {
         try {
@@ -47,8 +71,7 @@ const Home = () => {
     };
 
     // Use search results when searching, otherwise show all products
-    // Note: Search functionality currently disabled/mixed. focusing on products display.
-    const displayedItems = products;
+    const displayedItems = isSearching ? searchResults : products;
 
     return (
         <motion.div
@@ -69,7 +92,6 @@ const Home = () => {
                         placeholder="Search products..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                    // Disabled search logic for now as we only have getExploreProducts
                     />
                     {searchQuery && (
                         <button
@@ -100,7 +122,7 @@ const Home = () => {
             <div className="home-content">
                 {/* Search Results section removed/hidden for now as we focus on products */}
 
-                {loading ? (
+                {loading || (isSearching && searchLoading) ? (
                     <ShimmerCollectionGrid count={8} />
                 ) : displayedItems.length > 0 ? (
                     <ProductMasonryGrid products={displayedItems} />

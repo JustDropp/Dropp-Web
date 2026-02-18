@@ -102,7 +102,7 @@ const Creators = () => {
     const creatorFollowsMe = (creator) => {
         const myId = currentUser?.id || currentUser?._id;
         if (!myId) return false;
-        const theirFollowing = creator.following || [];
+        const theirFollowing = Array.isArray(creator.following) ? creator.following : [];
         return theirFollowing.some(f => (f?._id || f) === myId);
     };
 

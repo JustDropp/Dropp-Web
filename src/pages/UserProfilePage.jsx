@@ -53,18 +53,27 @@ const UserProfilePage = () => {
 
             const myId = currentUser?.id || currentUser?._id;
             if (myId && userData) {
-                // Check if I follow this user (my ID is in their followers list)
-                const followers = userData.followers || [];
-                const amFollowing = followers.some(f => (f?._id || f) === myId);
-                setIsFollowing(amFollowing);
+                // If API returns isFollowing directly, use it.
+                // The prompt says: "check if isFollowing is true and if it is true then mark that user following for the logged in user."
+                // The response example structure showed "isFollowing: true" inside "results" (which is likely userData here).
+
+                if (userData.isFollowing !== undefined) {
+                    setIsFollowing(userData.isFollowing);
+                } else {
+                    // Fallback to manual check if API doesn't return it (though requirements say it will)
+                    const followers = userData.followers || [];
+                    const amFollowing = followers.some(f => (f?._id || f) === myId);
+                    setIsFollowing(amFollowing);
+                }
 
                 // Check if this user follows me (their ID is in their following list pointing to me,
                 // OR my followers contain their ID). We check their following array for my ID.
-                const theirFollowing = userData.following || [];
+                const theirFollowing = Array.isArray(userData.following) ? userData.following : [];
                 const theyFollowMe = theirFollowing.some(f => (f?._id || f) === myId);
                 setFollowsMe(theyFollowMe);
 
-                setFollowerCount(followers.length);
+                const followersList = userData.followers || [];
+                setFollowerCount(followersList.length);
             } else {
                 setFollowerCount(userData?.followers?.length || 0);
             }

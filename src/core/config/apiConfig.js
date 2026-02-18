@@ -19,6 +19,8 @@ export const API_CONFIG = {
         PRODUCT_BY_ID: '/product',
         LIKE_PRODUCT: '/product/like',
         DELETE_PRODUCT: '/product',
+        SEARCH_PRODUCTS: '/product/search', // GET /product/search?q={query}
+        UPDATE_PRODUCT: '/product/pId', // PATCH /product/pId/{productId}
     },
     TIMEOUT: 10000,
 };
