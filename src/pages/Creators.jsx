@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, UserPlus, UserCheck, MapPin, Link as LinkIcon, Users, X, Loader } from 'lucide-react';
 import UserService from '../core/services/UserService';
 import { ShimmerCreatorGrid } from '../components/Shimmer';
+import FollowListModal from '../components/FollowListModal';
 import { useAuth } from '../contexts/AuthContext';
 import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/Creators.css';
@@ -18,6 +19,7 @@ const Creators = () => {
     const [loading, setLoading] = useState(true);
     const [searchLoading, setSearchLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const [followModal, setFollowModal] = useState({ isOpen: false, type: 'followers', userId: null, username: '' });
 
     useEffect(() => {
         fetchCreators();
@@ -222,11 +224,33 @@ const Creators = () => {
 
                                 <div className="creator-card-right">
                                     <div className="creator-stats">
-                                        <div className="stat">
+                                        <div 
+                                            className="stat clickable"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setFollowModal({ 
+                                                    isOpen: true, 
+                                                    type: 'followers', 
+                                                    userId: creator._id || creator.id,
+                                                    username: creator.username
+                                                });
+                                            }}
+                                        >
                                             <span className="stat-value">{formatCount(creator.followers || 0)}</span>
                                             <span className="stat-label">Followers</span>
                                         </div>
-                                        <div className="stat">
+                                        <div 
+                                            className="stat clickable"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setFollowModal({ 
+                                                    isOpen: true, 
+                                                    type: 'following', 
+                                                    userId: creator._id || creator.id,
+                                                    username: creator.username
+                                                });
+                                            }}
+                                        >
                                             <span className="stat-value">{formatCount(creator.following || 0)}</span>
                                             <span className="stat-label">Following</span>
                                         </div>
@@ -260,6 +284,14 @@ const Creators = () => {
                     </div>
                 )}
             </div>
+
+            <FollowListModal
+                isOpen={followModal.isOpen}
+                onClose={() => setFollowModal({ ...followModal, isOpen: false })}
+                userId={followModal.userId}
+                type={followModal.type}
+                username={followModal.username}
+            />
         </motion.div>
     );
 };

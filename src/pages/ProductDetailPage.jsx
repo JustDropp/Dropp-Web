@@ -13,6 +13,7 @@ import CollectionService from '../core/services/CollectionService';
 import CollectionCard from '../components/CollectionCard';
 import Snackbar from '../components/Snackbar';
 import Footer from '../components/Footer';
+import FollowListModal from '../components/FollowListModal';
 import { useAuth } from '../contexts/AuthContext';
 import { API_CONFIG } from '../core/config/apiConfig';
 import PLACEHOLDER_IMAGE from '../utils/placeholder';
@@ -35,6 +36,7 @@ const ProductDetailPage = () => {
     const [showOptions, setShowOptions] = useState(false);
     const [copied, setCopied] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
+    const [followModal, setFollowModal] = useState({ isOpen: false, type: 'followers' });
 
     const touchStartX = useRef(null);
     const optionsRef = useRef(null);
@@ -92,9 +94,10 @@ const ProductDetailPage = () => {
                         const myId = user.id || user._id;
                         if (creatorData?.isFollowing !== undefined) {
                             setIsFollowing(creatorData.isFollowing);
+                        } else if (Array.isArray(creatorData?.followers)) {
+                            setIsFollowing(creatorData.followers.some(f => (f?._id || f) === myId));
                         } else {
-                            const followers = creatorData?.followers || [];
-                            setIsFollowing(followers.some(f => (f?._id || f) === myId));
+                            setIsFollowing(false);
                         }
                     }
                 } else if (typeof productData?.createdBy === 'object' && productData?.createdBy) {
@@ -487,12 +490,18 @@ const ProductDetailPage = () => {
 
                                     {/* Stats */}
                                     <div className="pdp-creator-stats">
-                                        <div className="pdp-stat">
+                                        <div 
+                                            className="pdp-stat clickable"
+                                            onClick={() => setFollowModal({ isOpen: true, type: 'followers' })}
+                                        >
                                             <span className="pdp-stat-value">{formatCount(followerCount)}</span>
                                             <span className="pdp-stat-label">Followers</span>
                                         </div>
                                         <div className="pdp-stat-divider" />
-                                        <div className="pdp-stat">
+                                        <div 
+                                            className="pdp-stat clickable"
+                                            onClick={() => setFollowModal({ isOpen: true, type: 'following' })}
+                                        >
                                             <span className="pdp-stat-value">{formatCount(creatorFollowingCount)}</span>
                                             <span className="pdp-stat-label">Following</span>
                                         </div>
@@ -570,6 +579,16 @@ const ProductDetailPage = () => {
                     message={snackbar.message}
                     type={snackbar.type}
                     onClose={() => setSnackbar({ ...snackbar, show: false })}
+                />
+            )}
+
+            {creator && (
+                <FollowListModal
+                    isOpen={followModal.isOpen}
+                    onClose={() => setFollowModal({ ...followModal, isOpen: false })}
+                    userId={creator._id || creator.id}
+                    type={followModal.type}
+                    username={creator.username}
                 />
             )}
         </>

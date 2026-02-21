@@ -493,6 +493,13 @@
     gap: 3px;
     flex: 1;
 }
+.pdp-stat.clickable {
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+.pdp-stat.clickable:hover {
+    opacity: 0.7;
+}
 .pdp-stat-value {
     font-size: 1.25rem;
     font-weight: 700;

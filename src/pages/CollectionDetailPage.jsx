@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,9 +12,12 @@ import {
     UserPlus,
     UserCheck,
     Package,
-    ExternalLink,
     LayoutGrid,
-    Calendar
+    Calendar,
+    Flag,
+    UserX,
+    Check,
+    ExternalLink
 } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import UserService from '../core/services/UserService';
@@ -23,11 +26,13 @@ import AddProductModal from '../components/AddProductModal';
 import ProductCard from '../components/ProductCard';
 import Snackbar from '../components/Snackbar';
 import Footer from '../components/Footer';
+import FollowListModal from '../components/FollowListModal';
 import { ShimmerCollectionDetail } from '../components/Shimmer';
 import { useAuth } from '../contexts/AuthContext';
 import { API_CONFIG } from '../core/config/apiConfig';
 import '../styles/CollectionDetailPage.css';
 import '../styles/ProductMasonryGrid.css';
+import '../styles/Profile.css';
 
 const CollectionDetailPage = () => {
     const { id } = useParams();
@@ -36,6 +41,7 @@ const CollectionDetailPage = () => {
     const [collection, setCollection] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
@@ -44,18 +50,34 @@ const CollectionDetailPage = () => {
     const [products, setProducts] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [followsMe, setFollowsMe] = useState(false);
+    const [followerCount, setFollowerCount] = useState(0);
+    const [creatorCollectionsCount, setCreatorCollectionsCount] = useState(0);
+    const [followModal, setFollowModal] = useState({ isOpen: false, type: 'followers' });
+    const [copied, setCopied] = useState(false);
 
-    // Get creator info from collection
-    const creator = collection?.createdBy;
+    const optionsRef = useRef(null);
 
-    // Determine if current user is the owner - STRICT check
+    // Get creator info
+    const [creator, setCreator] = useState(null);
+
+    // Determine if current user is the owner
     const currentUserId = user?.id || user?._id;
-    const collectionOwnerId = collection?.createdBy?._id || collection?.createdBy?.id;
+    const collectionOwnerId = collection?.createdBy?._id || collection?.createdBy?.id || creator?._id || creator?.id;
     const isOwner = isAuthenticated && currentUserId && collectionOwnerId && (currentUserId === collectionOwnerId);
 
     useEffect(() => {
         fetchCollection();
     }, [id, isAuthenticated]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (optionsRef.current && !optionsRef.current.contains(e.target)) {
+                setShowOptions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const fetchCollection = async () => {
         try {
@@ -69,27 +91,19 @@ const CollectionDetailPage = () => {
 
             const collectionData = data?.result || data;
             setCollection(collectionData);
-
-
-
             setLikeCount(collectionData?.likes?.length || 0);
 
-            // Check if current user has liked
             if (isAuthenticated && user) {
                 const userId = user.id || user._id;
                 const hasLiked = collectionData?.likes?.some(likeId => likeId === userId || likeId?._id === userId);
                 setIsLiked(!!hasLiked);
-
-                // Check follow state from creator data
-                const creatorData = collectionData?.createdBy;
-                if (creatorData) {
-                    const followers = creatorData.followers || [];
-                    setIsFollowing(followers.some(f => (f?._id || f) === userId));
-
-                    const theirFollowing = creatorData.following || [];
-                    setFollowsMe(theirFollowing.some(f => (f?._id || f) === userId));
-                }
             }
+
+            const creatorId = collectionData?.createdBy?._id || collectionData?.createdBy?.id || collectionData?.createdBy;
+            if (creatorId) {
+                fetchCreatorData(creatorId);
+            }
+
         } catch (error) {
             console.error('Failed to fetch collection:', error);
             setSnackbar({ show: true, message: 'Failed to load collection', type: 'error' });
@@ -98,13 +112,48 @@ const CollectionDetailPage = () => {
         }
     };
 
+    const fetchCreatorData = async (creatorId) => {
+        try {
+            const [userData, collectionsData] = await Promise.allSettled([
+                UserService.getUserById(creatorId),
+                CollectionService.getUserCollections(creatorId)
+            ]);
+
+            if (userData.status === 'fulfilled' && userData.value) {
+                const creatorData = userData.value;
+                setCreator(creatorData);
+                setFollowerCount(typeof creatorData.followers === 'number' ? creatorData.followers : (creatorData.followers?.length || 0));
+
+                if (isAuthenticated && user) {
+                    const userId = user.id || user._id;
+                    if (creatorData.isFollowing !== undefined) {
+                        setIsFollowing(creatorData.isFollowing);
+                    } else if (Array.isArray(creatorData.followers)) {
+                        setIsFollowing(creatorData.followers.some(f => (f?._id || f) === userId));
+                    }
+                    
+                    if (Array.isArray(creatorData.following)) {
+                        setFollowsMe(creatorData.following.some(f => (f?._id || f) === userId));
+                    }
+                }
+            }
+
+            if (collectionsData.status === 'fulfilled') {
+                setCreatorCollectionsCount(collectionsData.value?.length || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch creator data:', error);
+            if (collection?.createdBy) {
+                setCreator(collection.createdBy);
+            }
+        }
+    };
+
     const fetchProducts = async () => {
         if (!id) return;
         try {
             const data = await CollectionService.getProducts(id);
-            // Handle valid response structures: data.results (paginated object), data (array), or productList inside data
             const productList = data?.results || data?.products || (Array.isArray(data) ? data : []);
-            console.log('Fetched products:', productList); // Debugging
             setProducts(productList);
         } catch (error) {
             console.error('Failed to fetch products:', error);
@@ -118,7 +167,7 @@ const CollectionDetailPage = () => {
     }, [id]);
 
     const handleShare = () => {
-        const url = `${window.location.origin}/c/${id}`;
+        const url = window.location.href;
         if (navigator.share) {
             navigator.share({
                 title: collection?.title || collection?.name,
@@ -127,6 +176,8 @@ const CollectionDetailPage = () => {
             }).catch(err => console.log('Error sharing:', err));
         } else {
             navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
             setSnackbar({ show: true, message: 'Link copied to clipboard!', type: 'success' });
         }
     };
@@ -139,22 +190,16 @@ const CollectionDetailPage = () => {
 
     const handleDelete = async () => {
         if (!isOwner) return;
-
-        if (!window.confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
-            return;
-        }
+        if (!window.confirm('Are you sure you want to delete this collection? This action cannot be undone.')) return;
 
         setShowMenu(false);
         try {
             await CollectionService.deleteCollection(id);
             setSnackbar({ show: true, message: 'Collection deleted successfully', type: 'success' });
-            setTimeout(() => {
-                navigate('/profile/me');
-            }, 1000);
+            setTimeout(() => navigate('/profile/me'), 1000);
         } catch (error) {
             console.error('Failed to delete collection:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to delete collection';
-            setSnackbar({ show: true, message: errorMessage, type: 'error' });
+            setSnackbar({ show: true, message: 'Failed to delete collection', type: 'error' });
         }
     };
 
@@ -164,41 +209,26 @@ const CollectionDetailPage = () => {
     };
 
     const handleLike = async () => {
-        if (!isAuthenticated) {
-            navigate('/signup');
-            return;
-        }
-
-        // Optimistic update
-        const previousIsLiked = isLiked;
-        const previousLikeCount = likeCount;
-
+        if (!isAuthenticated) { navigate('/login'); return; }
+        const prevIsLiked = isLiked;
+        const prevLikeCount = likeCount;
         setIsLiked(!isLiked);
         setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-
         try {
-            console.log('Calling likeCollection API for id:', id);
             await CollectionService.likeCollection(id);
-            console.log('likeCollection API success');
         } catch (error) {
-            console.error('Failed to like collection:', error);
-            console.log('Reverting optimistic update due to error');
-            // Revert on error
-            setIsLiked(previousIsLiked);
-            setLikeCount(previousLikeCount);
+            setIsLiked(prevIsLiked);
+            setLikeCount(prevLikeCount);
             setSnackbar({ show: true, message: 'Failed to like collection', type: 'error' });
         }
     };
 
     const handleFollow = async () => {
-        if (!isAuthenticated) {
-            navigate('/signup');
-            return;
-        }
-
+        if (!isAuthenticated) { navigate('/signup'); return; }
         const prevFollowing = isFollowing;
+        const prevCount = followerCount;
         setIsFollowing(!isFollowing);
-
+        setFollowerCount(prev => isFollowing ? prev - 1 : prev + 1);
         try {
             await UserService.followUser(creator?._id || creator?.id);
             setSnackbar({
@@ -209,14 +239,32 @@ const CollectionDetailPage = () => {
         } catch (error) {
             console.error('Failed to follow user:', error);
             setIsFollowing(prevFollowing);
+            setFollowerCount(prevCount);
             setSnackbar({ show: true, message: 'Failed to update follow', type: 'error' });
         }
     };
 
-    const handleCreatorClick = () => {
-        if (creator?._id) {
-            navigate(`/user/${creator._id}`);
-        }
+    const handleReport = () => {
+        setShowOptions(false);
+        setSnackbar({ show: true, message: 'Report submitted. Thanks for keeping Dropp safe.', type: 'info' });
+    };
+
+    const handleBlock = () => {
+        setShowOptions(false);
+        setSnackbar({ show: true, message: `@${creator?.username} has been blocked`, type: 'warning' });
+    };
+
+    const getImageUrl = (url) => {
+        if (!url) return API_CONFIG.BASE_URL + '/images/default.webp';
+        if (url.startsWith('http')) return url;
+        const cleanUrl = url.split('/').map(part => encodeURIComponent(part)).join('/');
+        return API_CONFIG.BASE_URL + cleanUrl.replace(/%2F/g, '/');
+    };
+
+    const formatCount = (count) => {
+        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+        return count?.toString() || '0';
     };
 
     const handleUpdate = () => {
@@ -226,22 +274,6 @@ const CollectionDetailPage = () => {
     const handleProductAdded = () => {
         fetchCollection();
         fetchProducts();
-    };
-
-    const getImageUrl = (url) => {
-        if (!url) return API_CONFIG.BASE_URL + '/images/default.webp';
-        if (url.startsWith('http')) return url;
-
-        // Ensure proper encoding of filename
-        const cleanUrl = url.split('/').map(part => encodeURIComponent(part)).join('/');
-
-        return API_CONFIG.BASE_URL + cleanUrl.replace(/%2F/g, '/');
-    };
-
-    const formatCount = (count) => {
-        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
-        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
-        return count?.toString() || '0';
     };
 
     if (loading) {
@@ -257,26 +289,22 @@ const CollectionDetailPage = () => {
     if (!collection) {
         return (
             <div className="collection-detail-error">
+                <Package size={56} strokeWidth={1} />
                 <h2>Collection not found</h2>
                 <p>This collection may have been deleted or doesn't exist.</p>
-                {isAuthenticated ? (
-                    <button onClick={() => navigate(-1)} className="back-link" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                        <ArrowLeft size={16} />
-                        Go Back
-                    </button>
-                ) : (
-                    <Link to="/landing" className="back-link">
-                        <ArrowLeft size={16} />
-                        Go to Home
-                    </Link>
-                )}
+                <button onClick={() => navigate(-1)} className="back-link">
+                    <ArrowLeft size={16} /> Go Back
+                </button>
             </div>
         );
     }
 
     const collectionName = collection.title || collection.name;
-    const displayImage = getImageUrl(collection.displayImageUrl || '/placeholder.jpg');
-    const creatorImage = getImageUrl(creator?.profileImageUrl);
+    const creatorName = creator?.fullName || creator?.username || 'Unknown Creator';
+    const creatorUsername = creator?.username;
+    const creatorAvatar = getImageUrl(creator?.profileImageUrl);
+    const creatorBio = creator?.bio;
+    const creatorFollowingCount = typeof creator?.following === 'number' ? creator.following : (creator?.following?.length || 0);
 
     return (
         <>
@@ -288,176 +316,231 @@ const CollectionDetailPage = () => {
                 transition={{ duration: 0.5 }}
             >
                 <div className="collection-detail-container">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="back-link"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
-                    >
-                        <ArrowLeft size={16} />
-                        Go Back
-                    </button>
+                    <div className="collection-page-header">
+                        <button className="back-btn-round" onClick={() => navigate(-1)} aria-label="Go back">
+                            <ArrowLeft size={20} />
+                        </button>
+                        <h2 className="header-products-title">Curated Products</h2>
+                    </div>
 
-                    {/* Creator Info Card - Always show with correct styling */}
-                    {creator && (
-                        <div className="creator-card-section">
-                            <div className="creator-card-left" onClick={handleCreatorClick}>
-                                <img
-                                    src={creatorImage}
-                                    alt={creator.fullName || creator.username}
-                                    className="creator-card-avatar"
-                                    onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
-                                />
-                                <div className="creator-card-info">
-                                    <h3 className="creator-card-name">{creator.fullName || creator.username}</h3>
-                                    <span className="creator-card-username">@{creator.username}</span>
-                                    {creator.bio && (
-                                        <span className="creator-card-bio">{creator.bio}</span>
-                                    )}
-                                    <span className="creator-card-followers">{formatCount(creator.followers?.length || creator.followers || 0)} followers</span>
-                                </div>
-                            </div>
-                            {!isOwner && (
-                                <button
-                                    className={`creator-follow-btn ${isFollowing ? 'following' : ''}`}
-                                    onClick={handleFollow}
-                                >
-                                    {isFollowing ? (
-                                        <>
-                                            <UserCheck size={16} />
-                                            Following
-                                        </>
-                                    ) : (
-                                        <>
-                                            <UserPlus size={16} />
-                                            {followsMe ? 'Follow Back' : 'Follow'}
-                                        </>
-                                    )}
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Collection Header */}
-                    <div className="collection-header">
-                        <div className="collection-info">
-                            <h1 className="collection-title">{collectionName}</h1>
-                            {collection.desc && (
-                                <p className="collection-description">{collection.desc}</p>
-                            )}
-                            <div className="collection-stats-row">
-                                <span className="collection-stat-badge">
-                                    <Heart size={14} /> {likeCount} likes
-                                </span>
-                                <span className="collection-stat-badge">
-                                    <LayoutGrid size={14} /> {products?.length || collection.products?.length || 0} products
-                                </span>
-                                {collection.createdAt && (
-                                    <span className="collection-stat-badge">
-                                        <Calendar size={14} /> {new Date(collection.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
+                    <div className="collection-layout">
+                        {/* ── LEFT COLUMN — Products ── */}
+                        <div className="collection-left">
+                            <div className="collection-content-section">
+                                {products && products.length > 0 ? (
+                                    <div className="product-pinterest-grid">
+                                        {products.map((product) => (
+                                            <ProductCard
+                                                key={product._id || product.id}
+                                                product={product}
+                                                onDelete={(deletedId) => {
+                                                    setProducts(prev => prev.filter(p => (p._id || p.id) !== deletedId));
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="empty-products-card">
+                                        <div className="empty-products-icon">
+                                            <Package size={48} strokeWidth={1.5} />
+                                        </div>
+                                        <h4 className="empty-products-title">No products yet</h4>
+                                        <p className="empty-products-text">
+                                            {isOwner
+                                                ? 'Start adding products to your collection to share with others.'
+                                                : 'This collection doesn\'t have any products yet.'
+                                            }
+                                        </p>
+                                        {isOwner && (
+                                            <button
+                                                className="add-products-btn"
+                                                onClick={handleAddProducts}
+                                            >
+                                                <Plus size={18} />
+                                                Add Products
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="collection-actions">
-                            {/* Like button */}
-                            <button
-                                className={`action-btn-label ${isLiked ? 'liked' : ''}`}
-                                onClick={handleLike}
-                            >
-                                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                                <span>{isLiked ? 'Liked' : 'Like'}</span>
-                            </button>
+                        {/* ── RIGHT COLUMN — Collection Info & Creator Panel ── */}
+                        <div className="collection-right">
+                            {/* REFINED COLLECTION INFO CARD */}
+                            <div className="collection-info-card">
+                                <h1 className="collection-title-side">{collectionName}</h1>
+                                {collection.desc && (
+                                    <p className="collection-desc-side">{collection.desc}</p>
+                                )}
+                                
+                                <div className="collection-stats-side">
+                                    <div className="side-stat">
+                                        <Heart size={14} />
+                                        <span>{likeCount} likes</span>
+                                    </div>
+                                    <div className="side-stat">
+                                        <LayoutGrid size={14} />
+                                        <span>{products?.length || collection.products?.length || 0} products</span>
+                                    </div>
+                                    {collection.createdAt && (
+                                        <div className="side-stat">
+                                            <Calendar size={14} />
+                                            <span>{new Date(collection.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                    )}
+                                </div>
 
-                            {/* Share button */}
-                            <button
-                                className="action-btn-label"
-                                onClick={handleShare}
-                            >
-                                <Share2 size={18} />
-                                <span>Share</span>
-                            </button>
-
-                            {/* Owner-only controls */}
-                            {isOwner && (
-                                <>
-                                    <button
-                                        className="action-btn-label primary"
-                                        onClick={handleAddProducts}
+                                <div className="collection-actions-side">
+                                    <button 
+                                        className={`pdp-action-btn${isLiked ? ' pdp-liked' : ''}`}
+                                        onClick={handleLike}
                                     >
-                                        <Plus size={18} />
-                                        <span>Add</span>
+                                        <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+                                        {isLiked ? 'Liked' : 'Like'}
                                     </button>
 
-                                    <div className="menu-container">
-                                        <button
-                                            className="action-btn-label"
-                                            onClick={() => setShowMenu(!showMenu)}
-                                        >
-                                            <MoreHorizontal size={18} />
-                                            <span>More</span>
-                                        </button>
+                                    <button className="pdp-action-btn" onClick={handleShare}>
+                                        {copied ? <Check size={16} /> : <Share2 size={16} />}
+                                        {copied ? 'Copied!' : 'Share'}
+                                    </button>
 
-                                        {showMenu && (
-                                            <div className="dropdown-menu">
-                                                <button onClick={handleEdit} className="menu-item">
-                                                    <Edit size={16} />
-                                                    Edit Collection
-                                                </button>
-                                                <button onClick={handleDelete} className="menu-item delete-item">
-                                                    <Trash2 size={16} />
-                                                    Delete Collection
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="collection-content">
-                        <h3 className="section-title">Products</h3>
-
-                        {/* Product Grid */}
-                        {products && products.length > 0 ? (
-                            <div className="product-pinterest-grid">
-                                {products.map((product) => (
-                                    <ProductCard
-                                        key={product._id || product.id}
-                                        product={product}
-                                        onDelete={(deletedId) => {
-                                            setProducts(prev => prev.filter(p => (p._id || p.id) !== deletedId));
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-products-card">
-                                <div className="empty-products-icon">
-                                    <Package size={48} strokeWidth={1.5} />
+                                    {isOwner && (
+                                        <div className="pdp-options-wrap">
+                                            <button 
+                                                className="pdp-options-btn"
+                                                onClick={() => setShowMenu(!showMenu)}
+                                            >
+                                                <MoreHorizontal size={18} />
+                                            </button>
+                                            {showMenu && (
+                                                <div className="pdp-options-dropdown" style={{ bottom: 'auto', top: 'calc(100% + 8px)' }}>
+                                                    <button onClick={handleEdit}>
+                                                        <Edit size={14} /> Edit
+                                                    </button>
+                                                    <button className="pdp-danger" onClick={handleDelete}>
+                                                        <Trash2 size={14} /> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                                <h4 className="empty-products-title">No products yet</h4>
-                                <p className="empty-products-text">
-                                    {isOwner
-                                        ? 'Start adding products to your collection to share with others.'
-                                        : 'This collection doesn\'t have any products yet.'
-                                    }
-                                </p>
+
                                 {isOwner && (
-                                    <button
-                                        className="add-products-btn"
+                                    <button 
+                                        className="pdp-action-btn pdp-visit-btn full-width"
                                         onClick={handleAddProducts}
+                                        style={{ marginTop: '0.75rem' }}
                                     >
-                                        <Plus size={18} />
+                                        <Plus size={16} />
                                         Add Products
                                     </button>
                                 )}
                             </div>
-                        )}
+
+                            {/* IDENTICAL CREATOR PANEL */}
+                            {creator ? (
+                                <div className="pdp-creator-panel">
+                                    <div
+                                        className="pdp-creator-avatar-wrap"
+                                        onClick={() => creator?._id && navigate(`/user/${creator._id}`)}
+                                        title={`View ${creatorName}'s profile`}
+                                    >
+                                        <img
+                                            src={creatorAvatar}
+                                            alt={creatorName}
+                                            className="pdp-creator-avatar"
+                                            onError={(e) => { e.target.src = API_CONFIG.BASE_URL + '/images/default.webp'; }}
+                                        />
+                                    </div>
+
+                                    <div
+                                        className="pdp-creator-identity"
+                                        onClick={() => creator?._id && navigate(`/user/${creator._id}`)}
+                                    >
+                                        <h3 className="pdp-creator-name">{creatorName}</h3>
+                                        <span className="pdp-creator-username">@{creatorUsername}</span>
+                                    </div>
+
+                                    {creatorBio && (
+                                        <p className="pdp-creator-bio">{creatorBio}</p>
+                                    )}
+
+                                    <div className="pdp-creator-stats">
+                                        <div 
+                                            className="pdp-stat clickable"
+                                            onClick={() => setFollowModal({ isOpen: true, type: 'followers' })}
+                                        >
+                                            <span className="pdp-stat-value">{formatCount(followerCount)}</span>
+                                            <span className="pdp-stat-label">Followers</span>
+                                        </div>
+                                        <div className="pdp-stat-divider" />
+                                        <div 
+                                            className="pdp-stat clickable"
+                                            onClick={() => setFollowModal({ isOpen: true, type: 'following' })}
+                                        >
+                                            <span className="pdp-stat-value">{formatCount(creator?.following?.length || creator?.following || 0)}</span>
+                                            <span className="pdp-stat-label">Following</span>
+                                        </div>
+                                        <div className="pdp-stat-divider" />
+                                        <div className="pdp-stat">
+                                            <span className="pdp-stat-value">{formatCount(creatorCollectionsCount)}</span>
+                                            <span className="pdp-stat-label">Collections</span>
+                                        </div>
+                                    </div>
+
+                                    {!isOwner && (
+                                        <div className="pdp-creator-actions">
+                                            <button
+                                                className={`pdp-follow-btn${isFollowing ? ' following' : ''}`}
+                                                onClick={handleFollow}
+                                            >
+                                                {isFollowing ? (
+                                                    <><UserCheck size={16} /> Following</>
+                                                ) : (
+                                                    <><UserPlus size={16} /> {followsMe ? 'Follow Back' : 'Follow'}</>
+                                                )}
+                                            </button>
+
+                                            <div className="pdp-options-wrap" ref={optionsRef}>
+                                                <button 
+                                                    className="pdp-options-btn"
+                                                    onClick={(e) => { e.stopPropagation(); setShowOptions(!showOptions); }}
+                                                >
+                                                    <MoreHorizontal size={18} />
+                                                </button>
+                                                {showOptions && (
+                                                    <div className="pdp-options-dropdown">
+                                                        <button onClick={handleReport}>
+                                                            <Flag size={14} /> Report
+                                                        </button>
+                                                        <button className="pdp-danger" onClick={handleBlock}>
+                                                            <UserX size={14} /> Block
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button
+                                        className="pdp-view-profile-btn"
+                                        onClick={() => creator?._id && navigate(`/user/${creator._id}`)}
+                                    >
+                                        View Profile
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="pdp-creator-panel pdp-creator-skeleton">
+                                    <div className="pdp-shimmer-avatar"></div>
+                                    <div className="pdp-shimmer-name"></div>
+                                    <div className="pdp-shimmer-line"></div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* CTA Section for unauthenticated users */}
                     {!isAuthenticated && (
                         <div className="public-cta-section">
                             <div className="cta-content">
@@ -477,7 +560,6 @@ const CollectionDetailPage = () => {
                     )}
                 </div>
 
-                {/* Edit Modal - Only render for owners */}
                 {isOwner && (
                     <EditCollectionModal
                         isOpen={isEditModalOpen}
@@ -487,7 +569,6 @@ const CollectionDetailPage = () => {
                     />
                 )}
 
-                {/* Add Product Modal */}
                 {isOwner && (
                     <AddProductModal
                         isOpen={isAddProductModalOpen}
@@ -497,7 +578,6 @@ const CollectionDetailPage = () => {
                     />
                 )}
 
-                {/* Snackbar */}
                 {snackbar.show && (
                     <Snackbar
                         message={snackbar.message}
@@ -507,8 +587,17 @@ const CollectionDetailPage = () => {
                 )}
             </motion.div>
 
-            {/* Footer for public view */}
             {!isAuthenticated && <Footer />}
+
+            {creator && (
+                <FollowListModal
+                    isOpen={followModal.isOpen}
+                    onClose={() => setFollowModal({ ...followModal, isOpen: false })}
+                    userId={creator._id || creator.id}
+                    type={followModal.type}
+                    username={creator.username}
+                />
+            )}
         </>
     );
 };

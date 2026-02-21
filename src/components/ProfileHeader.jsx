@@ -5,6 +5,7 @@ import {
     User, MessageCircle, MoreHorizontal, MapPin,
     Link as LinkIcon, ArrowLeft, Share2, Ban, Flag
 } from 'lucide-react';
+import FollowListModal from './FollowListModal';
 import '../styles/Profile.css';
 
 const ProfileHeader = ({
@@ -19,8 +20,10 @@ const ProfileHeader = ({
     onAvatarClick
 }) => {
     const [showOptions, setShowOptions] = useState(false);
+    const [followModal, setFollowModal] = useState({ isOpen: false, type: 'followers' });
     const navigate = useNavigate();
     const { avatar, fullName, username, bio, location, link, pronoun, stats, isFollowing, followsMe } = user;
+    const userId = user._id || user.id;
 
     // Close menu on outside click
     useEffect(() => {
@@ -29,6 +32,10 @@ const ProfileHeader = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, [showOptions]);
+
+    const openFollowModal = (type) => {
+        setFollowModal({ isOpen: true, type });
+    };
 
     return (
         <div className="profile-header">
@@ -144,11 +151,17 @@ const ProfileHeader = ({
                             <span className="stat-value">{stats?.collections?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Collections</span>
                         </div>
-                        <div className="profile-stat">
+                        <div 
+                            className="profile-stat clickable" 
+                            onClick={() => openFollowModal('followers')}
+                        >
                             <span className="stat-value">{stats?.followers?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Followers</span>
                         </div>
-                        <div className="profile-stat">
+                        <div 
+                            className="profile-stat clickable" 
+                            onClick={() => openFollowModal('following')}
+                        >
                             <span className="stat-value">{stats?.following?.toLocaleString() || '0'}</span>
                             <span className="stat-label">Following</span>
                         </div>
@@ -178,6 +191,14 @@ const ProfileHeader = ({
                     </div>
                 </div>
             </div>
+
+            <FollowListModal
+                isOpen={followModal.isOpen}
+                onClose={() => setFollowModal({ ...followModal, isOpen: false })}
+                userId={userId}
+                type={followModal.type}
+                username={username}
+            />
         </div>
     );
 };
