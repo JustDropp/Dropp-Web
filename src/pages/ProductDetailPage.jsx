@@ -10,10 +10,12 @@ import {
 import ProductService from '../core/services/ProductService';
 import UserService from '../core/services/UserService';
 import CollectionService from '../core/services/CollectionService';
+import CollectionCard from '../components/CollectionCard';
 import Snackbar from '../components/Snackbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../contexts/AuthContext';
 import { API_CONFIG } from '../core/config/apiConfig';
+import PLACEHOLDER_IMAGE from '../utils/placeholder';
 import '../styles/ProductDetailPage.css';
 
 const ProductDetailPage = () => {
@@ -343,8 +345,7 @@ const ProductDetailPage = () => {
                                     </div>
                                 ) : (
                                     <div className="pdp-media-placeholder">
-                                        <Package size={56} strokeWidth={1} />
-                                        <span>{productName[0]?.toUpperCase()}</span>
+                                        <img src={PLACEHOLDER_IMAGE} alt="No media available" />
                                     </div>
                                 )}
 
@@ -420,42 +421,14 @@ const ProductDetailPage = () => {
 
                                     {creatorCollections.length > 0 ? (
                                         <div className="pdp-collections-scroll">
-                                            {creatorCollections.map((col) => {
-                                                const colId = col._id || col.id;
-                                                const coverImg = col.displayImageUrl
-                                                    ? getImageUrl(col.displayImageUrl)
-                                                    : null;
-                                                return (
-                                                    <div
-                                                        key={colId}
-                                                        className="pdp-col-card"
-                                                        onClick={() => navigate(`/c/${colId}`)}
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        onKeyDown={(e) => e.key === 'Enter' && navigate(`/c/${colId}`)}
-                                                    >
-                                                        <div className="pdp-col-cover">
-                                                            {coverImg ? (
-                                                                <img
-                                                                    src={coverImg}
-                                                                    alt={col.title}
-                                                                    onError={(e) => { e.target.parentNode.classList.add('pdp-col-cover-fallback'); e.target.style.display = 'none'; }}
-                                                                />
-                                                            ) : (
-                                                                <div className="pdp-col-cover-empty">
-                                                                    <Layers size={22} strokeWidth={1.5} />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="pdp-col-info">
-                                                            <span className="pdp-col-title">{col.title}</span>
-                                                            <span className="pdp-col-count">
-                                                                {col.products?.length || 0} products
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                            {creatorCollections.map((col) => (
+                                                <div key={col._id || col.id} className="pdp-col-wrap">
+                                                    <CollectionCard
+                                                        collection={col}
+                                                        isOwner={false}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
                                         <div className="pdp-no-collections">

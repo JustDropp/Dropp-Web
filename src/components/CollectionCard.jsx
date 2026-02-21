@@ -73,12 +73,33 @@ const CollectionCard = ({
     };
 
     const getGridImages = () => {
-        // Fix: Use generic placeholder if no display image, NEVER use profile image for collection cover
-        const mainImage = collection.displayImageUrl
+        // Collect image URLs from populated product objects (media array)
+        const products = collection.products || [];
+        const productImages = products
+            .filter(p => p && typeof p === 'object')
+            .map(p => {
+                const media = p.media || [];
+                if (media.length > 0) {
+                    const url = media[0];
+                    return url.startsWith('http') ? url : API_CONFIG.BASE_URL + url;
+                }
+                // Fallback fields some endpoints might use
+                if (p.imageUrl) return getImageUrl(p.imageUrl);
+                if (p.image) return getImageUrl(p.image);
+                return null;
+            })
+            .filter(Boolean);
+
+        // Fallback chain: displayImageUrl → shared placeholder
+        const displayFallback = collection.displayImageUrl
             ? getImageUrl(collection.displayImageUrl)
             : PLACEHOLDER_IMAGE;
 
-        return [mainImage, mainImage, mainImage];
+        return [
+            productImages[0] || displayFallback,
+            productImages[1] || displayFallback,
+            productImages[2] || displayFallback,
+        ];
     };
 
     const gridImages = getGridImages();

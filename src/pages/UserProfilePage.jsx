@@ -44,6 +44,21 @@ const UserProfilePage = () => {
         }
     }, [isOwnProfile, navigate]);
 
+    // Separate effect for "followsMe" — runs once auth context is ready.
+    // AuthContext initializes asynchronously, so currentUser may be null when
+    // the main fetchUserData runs. This effect fires once currentUser is set.
+    useEffect(() => {
+        const myId = currentUser?.id || currentUser?._id;
+        if (!myId || !userId) return;
+
+        UserService.getFollowing(userId)
+            .then(theirFollowing => {
+                const theyFollowMe = theirFollowing.some(u => (u._id || u.id) === myId);
+                setFollowsMe(theyFollowMe);
+            })
+            .catch(() => setFollowsMe(false));
+    }, [userId, currentUser?._id]);
+
     const fetchUserData = async () => {
         try {
             setLoading(true);
@@ -51,32 +66,11 @@ const UserProfilePage = () => {
             const userData = await UserService.getUserById(userId);
             setUser(userData);
 
-            const myId = currentUser?.id || currentUser?._id;
-            if (myId && userData) {
-                // If API returns isFollowing directly, use it.
-                // The prompt says: "check if isFollowing is true and if it is true then mark that user following for the logged in user."
-                // The response example structure showed "isFollowing: true" inside "results" (which is likely userData here).
+            // followers and following are counts (numbers) in the API response
+            setFollowerCount(typeof userData.followers === 'number' ? userData.followers : 0);
 
-                if (userData.isFollowing !== undefined) {
-                    setIsFollowing(userData.isFollowing);
-                } else {
-                    // Fallback to manual check if API doesn't return it (though requirements say it will)
-                    const followers = userData.followers || [];
-                    const amFollowing = followers.some(f => (f?._id || f) === myId);
-                    setIsFollowing(amFollowing);
-                }
-
-                // Check if this user follows me (their ID is in their following list pointing to me,
-                // OR my followers contain their ID). We check their following array for my ID.
-                const theirFollowing = Array.isArray(userData.following) ? userData.following : [];
-                const theyFollowMe = theirFollowing.some(f => (f?._id || f) === myId);
-                setFollowsMe(theyFollowMe);
-
-                const followersList = userData.followers || [];
-                setFollowerCount(followersList.length);
-            } else {
-                setFollowerCount(userData?.followers?.length || 0);
-            }
+            // isFollowing is returned directly by the API (server checks JWT token)
+            setIsFollowing(userData.isFollowing === true);
         } catch (err) {
             console.error('Failed to fetch user:', err);
             setError('User not found');
@@ -191,7 +185,7 @@ const UserProfilePage = () => {
         followsMe,
         stats: {
             followers: followerCount,
-            following: user.following?.length || user.following || 0,
+            following: typeof user.following === 'number' ? user.following : 0,
             collections: collections.length
         }
     };

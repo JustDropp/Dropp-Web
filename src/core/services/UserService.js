@@ -123,6 +123,32 @@ class UserService {
     }
 
     /**
+     * Get followers of a user
+     * @param {string} userId
+     * @returns {Promise<Array>}
+     */
+    async getFollowers(userId) {
+        try {
+            return await UserRepository.getFollowers(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get users that a user is following
+     * @param {string} userId
+     * @returns {Promise<Array>}
+     */
+    async getFollowing(userId) {
+        try {
+            return await UserRepository.getFollowing(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Get all users (creators)
      * @returns {Promise<Array>}
      */

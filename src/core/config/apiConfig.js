@@ -14,6 +14,8 @@ export const API_CONFIG = {
         EXPLORE: '/c/explore/collections',
         USERS: '/user/',
         FOLLOW_USER: '/user/follow',
+        FOLLOWERS: '/user/followers',
+        FOLLOWING: '/user/following',
         ADD_PRODUCT: '/product/cId',
         PRODUCT_EXPLORE: '/product/explore',
         PRODUCT_BY_ID: '/product',

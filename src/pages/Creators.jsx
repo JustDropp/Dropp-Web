@@ -23,6 +23,27 @@ const Creators = () => {
         fetchCreators();
     }, []);
 
+    // Once creators are loaded AND we know who the current user is,
+    // fetch the current user's following list to initialize follow state correctly.
+    useEffect(() => {
+        const myId = currentUser?.id || currentUser?._id;
+        if (!myId || creators.length === 0) return;
+
+        UserService.getFollowing(myId)
+            .then(myFollowingList => {
+                const followingIds = new Set(myFollowingList.map(u => u._id || u.id));
+                setFollowing(prev => {
+                    const updated = { ...prev };
+                    creators.forEach(creator => {
+                        const cId = creator._id || creator.id;
+                        updated[cId] = followingIds.has(cId);
+                    });
+                    return updated;
+                });
+            })
+            .catch(() => { /* leave existing state */ });
+    }, [currentUser?._id, creators.length]);
+
     // Debounced search using API
     useEffect(() => {
         const timer = setTimeout(async () => {
@@ -53,17 +74,13 @@ const Creators = () => {
             const users = await UserService.getAllUsers();
             setCreators(users);
 
-            // Initialize follow state from data
-            const myId = currentUser?.id || currentUser?._id;
-            if (myId) {
-                const followMap = {};
-                users.forEach(creator => {
-                    const cId = creator._id || creator.id;
-                    const followers = creator.followers || [];
-                    followMap[cId] = followers.some(f => (f?._id || f) === myId);
-                });
-                setFollowing(followMap);
-            }
+            // Initialize follow state from isFollowing field returned by API
+            const followMap = {};
+            users.forEach(creator => {
+                const cId = creator._id || creator.id;
+                followMap[cId] = creator.isFollowing === true;
+            });
+            setFollowing(followMap);
         } catch (error) {
             console.error('Failed to fetch creators:', error);
         } finally {
@@ -99,12 +116,9 @@ const Creators = () => {
         return count?.toString() || '0';
     };
 
-    const creatorFollowsMe = (creator) => {
-        const myId = currentUser?.id || currentUser?._id;
-        if (!myId) return false;
-        const theirFollowing = Array.isArray(creator.following) ? creator.following : [];
-        return theirFollowing.some(f => (f?._id || f) === myId);
-    };
+    // "Follow Back" is not determinable from the list API (following is a count).
+    // This is intentionally left as false; the profile page handles it with an extra API call.
+    const creatorFollowsMe = () => false;
 
     const getImageUrl = (url) => {
         if (!url) return API_CONFIG.BASE_URL + '/images/default.webp';
@@ -209,11 +223,11 @@ const Creators = () => {
                                 <div className="creator-card-right">
                                     <div className="creator-stats">
                                         <div className="stat">
-                                            <span className="stat-value">{formatCount(creator.followers?.length || creator.followers || 0)}</span>
+                                            <span className="stat-value">{formatCount(creator.followers || 0)}</span>
                                             <span className="stat-label">Followers</span>
                                         </div>
                                         <div className="stat">
-                                            <span className="stat-value">{formatCount(creator.following?.length || creator.following || 0)}</span>
+                                            <span className="stat-value">{formatCount(creator.following || 0)}</span>
                                             <span className="stat-label">Following</span>
                                         </div>
                                     </div>

@@ -76,7 +76,7 @@ const Profile = () => {
     }, [username]);
 
     // Check if we are viewing our own profile
-    const isOwnProfile = username === 'me' || (user && user._id === (user.id || user._id)); // simplified check, can be improved with auth context
+    const isOwnProfile = username === 'me' || !username;
 
     const handleFollow = () => {
         console.log('Follow/Unfollow user');

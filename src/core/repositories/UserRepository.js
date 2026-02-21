@@ -137,6 +137,34 @@ class UserRepository {
     }
 
     /**
+     * Get followers of a user
+     * @param {string} userId - User ID
+     * @returns {Promise<Array>}
+     */
+    async getFollowers(userId) {
+        try {
+            const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.FOLLOWERS}/${userId}`);
+            return response.data?.followers || [];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get users that a user is following
+     * @param {string} userId - User ID
+     * @returns {Promise<Array>}
+     */
+    async getFollowing(userId) {
+        try {
+            const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.FOLLOWING}/${userId}`);
+            return response.data?.following || [];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Get all users (creators)
      * @returns {Promise<Array>}
      */
