@@ -13,6 +13,7 @@ import { ShimmerProfileHeader, ShimmerCollectionGrid } from '../components/Shimm
 
 import EditProfileModal from '../components/EditProfileModal';
 import { AnimatePresence } from 'framer-motion';
+import Snackbar from '../components/Snackbar';
 
 const Profile = () => {
     const { username } = useParams();
@@ -20,6 +21,7 @@ const Profile = () => {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+    const [snackbar, setSnackbar] = React.useState({ show: false, message: '', type: 'success' });
 
     // Local state for collections to use the specific endpoint
     const [profileCollections, setProfileCollections] = React.useState([]);
@@ -84,6 +86,12 @@ const Profile = () => {
 
     const handleMessage = () => {
         console.log('Open messages');
+    };
+
+    const handleShareProfile = () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url);
+        setSnackbar({ show: true, message: 'Profile link copied!', type: 'success' });
     };
 
     const handleUpdateProfile = async (updatedUser) => {
@@ -157,6 +165,7 @@ const Profile = () => {
                     onFollow={handleFollow}
                     onMessage={handleMessage}
                     onEditProfile={() => setIsEditModalOpen(true)}
+                    onShareProfile={handleShareProfile}
                 />
 
                 <ProfileTabs
@@ -178,6 +187,13 @@ const Profile = () => {
             </div>
 
             <FloatingActionButton />
+
+            <Snackbar
+                isVisible={snackbar.show}
+                message={snackbar.message}
+                type={snackbar.type}
+                onClose={() => setSnackbar({ ...snackbar, show: false })}
+            />
         </motion.div>
     );
 };

@@ -123,8 +123,7 @@ const UserProfilePage = () => {
     };
 
     const handleShareProfile = () => {
-        const basePath = import.meta.env.BASE_URL || '/';
-        const url = `${window.location.origin}${basePath}#/user/${userId}`;
+        const url = window.location.href;
         navigator.clipboard.writeText(url);
         setSnackbar({ show: true, message: 'Profile link copied!', type: 'success' });
     };

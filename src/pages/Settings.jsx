@@ -68,7 +68,7 @@ const Settings = () => {
             showSnackbar('Account deleted successfully', 'success');
             // Clear local storage and redirect to landing
             localStorage.clear();
-            window.location.href = '/#/landing';
+            window.location.href = '/landing';
         } catch (error) {
             console.error('Error deleting account:', error);
             showSnackbar(error.message || 'Failed to delete account', 'error');
