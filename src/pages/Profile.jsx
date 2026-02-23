@@ -136,7 +136,7 @@ const Profile = () => {
 
     const adaptedUser = {
         ...user,
-        avatar: user.profileImageUrl ? (user.profileImageUrl.startsWith('http') ? user.profileImageUrl : API_CONFIG.BASE_URL + user.profileImageUrl) : null,
+        avatar: user.profileImageUrl ? (user.profileImageUrl.startsWith('http') ? user.profileImageUrl : user.profileImageUrl) : null,
         stats: {
             followers: user.followers || 0,
             following: user.following || 0,
