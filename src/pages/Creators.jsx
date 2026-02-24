@@ -100,11 +100,48 @@ const Creators = () => {
         const wasFollowing = following[creatorId];
         setFollowing(prev => ({ ...prev, [creatorId]: !prev[creatorId] }));
 
+        const updateFollowerCount = (list) => 
+            list.map(creator => {
+                const cId = creator._id || creator.id;
+                if (cId === creatorId) {
+                    const currentFollowers = creator.followers || 0;
+                    return { 
+                        ...creator, 
+                        followers: wasFollowing ? Math.max(0, currentFollowers - 1) : currentFollowers + 1 
+                    };
+                }
+                return creator;
+            });
+
+        setCreators(prev => updateFollowerCount(prev));
+        if (isSearching) {
+            setSearchResults(prev => updateFollowerCount(prev));
+        }
+
         try {
             await UserService.followUser(creatorId);
         } catch (error) {
             console.error('Failed to follow user:', error);
             setFollowing(prev => ({ ...prev, [creatorId]: wasFollowing }));
+            
+            // Revert follower count on failure
+            const revertFollowerCount = (list) => 
+                list.map(creator => {
+                    const cId = creator._id || creator.id;
+                    if (cId === creatorId) {
+                        const currentFollowers = creator.followers || 0;
+                        return { 
+                            ...creator, 
+                            followers: wasFollowing ? currentFollowers + 1 : Math.max(0, currentFollowers - 1) 
+                        };
+                    }
+                    return creator;
+                });
+                
+            setCreators(prev => revertFollowerCount(prev));
+            if (isSearching) {
+                setSearchResults(prev => revertFollowerCount(prev));
+            }
         }
     };
 
