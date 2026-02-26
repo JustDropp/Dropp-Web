@@ -149,6 +149,18 @@ class UserService {
     }
 
     /**
+     * Get user notifications
+     * @returns {Promise<Array>}
+     */
+    async getNotifications() {
+        try {
+            return await UserRepository.getNotifications();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Get all users (creators)
      * @returns {Promise<Array>}
      */

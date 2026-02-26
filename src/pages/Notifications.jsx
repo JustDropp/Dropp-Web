@@ -1,79 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, UserPlus, Bell as BellIcon, Check } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, Bell as BellIcon, Check, Package, User } from 'lucide-react';
+import { useNotifications } from '../contexts/NotificationContext';
 import '../styles/Notifications.css';
 
 const Notifications = () => {
     const [filter, setFilter] = useState('all');
+    const { notifications, unreadCount, markAllAsRead, fetchNotifications } = useNotifications();
 
-    const notifications = [
-        {
-            id: 1,
-            type: 'like',
-            user: 'Sarah Chen',
-            avatar: 'https://i.pravatar.cc/150?img=1',
-            action: 'liked your collection',
-            collection: 'Minimalist Workspace',
-            time: '2 hours ago',
-            read: false
-        },
-        {
-            id: 2,
-            type: 'follow',
-            user: 'Alex Rivera',
-            avatar: 'https://i.pravatar.cc/150?img=2',
-            action: 'started following you',
-            time: '5 hours ago',
-            read: false
-        },
-        {
-            id: 3,
-            type: 'comment',
-            user: 'Mike Johnson',
-            avatar: 'https://i.pravatar.cc/150?img=3',
-            action: 'commented on',
-            collection: 'Urban Architecture',
-            comment: 'Amazing collection! 🔥',
-            time: '1 day ago',
-            read: true
-        },
-        {
-            id: 4,
-            type: 'like',
-            user: 'Emma Wilson',
-            avatar: 'https://i.pravatar.cc/150?img=4',
-            action: 'liked your collection',
-            collection: 'Nature Photography',
-            time: '2 days ago',
-            read: true
-        },
-        {
-            id: 5,
-            type: 'follow',
-            user: 'David Kim',
-            avatar: 'https://i.pravatar.cc/150?img=8',
-            action: 'started following you',
-            time: '3 days ago',
-            read: true
-        },
-    ];
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
 
-    const getIcon = (type) => {
-        switch (type) {
-            case 'like':
-                return <Heart size={18} fill="var(--accent-color)" stroke="var(--accent-color)" />;
-            case 'comment':
-                return <MessageCircle size={18} stroke="var(--accent-color)" />;
-            case 'follow':
-                return <UserPlus size={18} stroke="var(--accent-color)" />;
-            default:
-                return <BellIcon size={18} />;
+    const getIcon = (content) => {
+        const text = content.toLowerCase();
+        if (text.includes('liked collection')) {
+            return <Heart size={18} fill="var(--accent-color)" stroke="var(--accent-color)" />;
         }
+        if (text.includes('liked product')) {
+            return <Heart size={18} fill="#3887F8" stroke="#3887F8" />;
+        }
+        if (text.includes('following')) {
+            return <UserPlus size={18} stroke="var(--accent-color)" />;
+        }
+        return <BellIcon size={18} />;
+    };
+
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.max(0, Math.floor((now - date) / 1000));
+
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        return date.toLocaleDateString();
     };
 
     const filteredNotifications = filter === 'all'
         ? notifications
-        : notifications.filter(n => !n.read);
+        : notifications.filter(n => !n.hasRead);
 
     return (
         <motion.div
@@ -98,7 +64,7 @@ const Notifications = () => {
                             className={`filter-btn ${filter === 'unread' ? 'active' : ''}`}
                             onClick={() => setFilter('unread')}
                         >
-                            Unread
+                            Unread {unreadCount > 0 && `(${unreadCount})`}
                         </button>
                     </div>
                 </div>
@@ -113,36 +79,28 @@ const Notifications = () => {
                     ) : (
                         filteredNotifications.map((notification) => (
                             <motion.div
-                                key={notification.id}
-                                className={`notification-item ${!notification.read ? 'unread' : ''}`}
+                                key={notification._id || notification.id}
+                                className={`notification-item ${!notification.hasRead ? 'unread' : ''}`}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.2 }}
                             >
                                 <div className="notification-icon">
-                                    {getIcon(notification.type)}
+                                    {getIcon(notification.content)}
                                 </div>
 
-                                <img
-                                    src={notification.avatar}
-                                    alt={notification.user}
-                                    className="notification-avatar"
-                                />
+                                <div className="notification-avatar-placeholder">
+                                    <User size={20} />
+                                </div>
 
                                 <div className="notification-content">
                                     <p>
-                                        <strong>{notification.user}</strong> {notification.action}
-                                        {notification.collection && (
-                                            <> <strong>{notification.collection}</strong></>
-                                        )}
+                                        {notification.content}
                                     </p>
-                                    {notification.comment && (
-                                        <p className="notification-comment">{notification.comment}</p>
-                                    )}
-                                    <span className="notification-time">{notification.time}</span>
+                                    <span className="notification-time">{formatTime(notification.createdAt)}</span>
                                 </div>
 
-                                {!notification.read && (
+                                {!notification.hasRead && (
                                     <div className="notification-unread-indicator" />
                                 )}
                             </motion.div>
@@ -150,9 +108,9 @@ const Notifications = () => {
                     )}
                 </div>
 
-                {filteredNotifications.length > 0 && (
+                {unreadCount > 0 && (
                     <div className="notifications-actions">
-                        <button className="action-btn">
+                        <button className="action-btn" onClick={markAllAsRead}>
                             <Check size={16} />
                             Mark all as read
                         </button>

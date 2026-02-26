@@ -26,6 +26,7 @@ import Signup from './pages/Signup';
 import { DataProvider } from './contexts/DataContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import ScrollToTop from './components/ScrollToTop';
 
 // Protected Route Component
@@ -137,8 +138,10 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Router>
-            <ScrollToTop />
-            <AppContent />
+            <NotificationProvider>
+              <ScrollToTop />
+              <AppContent />
+            </NotificationProvider>
           </Router>
         </AuthProvider>
       </ThemeProvider>

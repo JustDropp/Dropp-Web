@@ -14,14 +14,18 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const { unreadCount } = useNotifications();
+
+    console.log('Sidebar unreadCount:', unreadCount);
 
     const mainNavItems = [
         { path: '/', label: 'Home', icon: Home },
@@ -92,6 +96,9 @@ const Sidebar = () => {
                             >
                                 <div className="sidebar-item-icon">
                                     <Icon size={20} />
+                                    {path === '/notifications' && unreadCount > 0 && (
+                                        <div className="sidebar-badge">{unreadCount}</div>
+                                    )}
                                 </div>
                                 {isExpanded && <span className="sidebar-item-label">{label}</span>}
                                 {isActive(path) && <div className="sidebar-item-indicator" />}
@@ -112,6 +119,9 @@ const Sidebar = () => {
                                     >
                                         <div className="sidebar-item-icon">
                                             <Icon size={20} />
+                                            {path === '/notifications' && unreadCount > 0 && (
+                                                <div className="sidebar-badge">{unreadCount}</div>
+                                            )}
                                         </div>
                                         {isExpanded && <span className="sidebar-item-label">{label}</span>}
                                         {isActive(path) && <div className="sidebar-item-indicator" />}
@@ -163,7 +173,12 @@ const Sidebar = () => {
                         to={path}
                         className={`bottom-nav-item ${isActive(path) ? 'active' : ''}`}
                     >
-                        <Icon size={22} />
+                        <div className="bottom-nav-icon-wrapper">
+                            <Icon size={22} />
+                            {path === '/notifications' && unreadCount > 0 && (
+                                <div className="bottom-nav-badge">{unreadCount}</div>
+                            )}
+                        </div>
                         <span className="bottom-nav-label">{label}</span>
                     </Link>
                 ))}

@@ -104,12 +104,22 @@
 }
 
 /* Notification Avatar */
-.notification-avatar {
+.notification-avatar,
+.notification-avatar-placeholder {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+}
+
+.notification-avatar-placeholder {
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
 }
 
 /* Notification Content */

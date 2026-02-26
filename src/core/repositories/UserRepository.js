@@ -165,6 +165,19 @@ class UserRepository {
     }
 
     /**
+     * Get user notifications
+     * @returns {Promise<Array>}
+     */
+    async getNotifications() {
+        try {
+            const response = await apiClient.get(API_CONFIG.ENDPOINTS.NOTIFICATIONS);
+            return response.data?.results || [];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Get all users (creators)
      * @returns {Promise<Array>}
      */

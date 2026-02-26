@@ -1,6 +1,5 @@
 .snackbar {
     position: fixed;
-    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -16,6 +15,19 @@
     min-width: 300px;
     max-width: 90vw;
     color: white;
+}
+
+.snackbar-bottom {
+    bottom: 24px;
+}
+
+.snackbar-top {
+    top: 0;
+    /* Framer motion handles the y offset */
+}
+
+.snackbar.clickable {
+    cursor: pointer;
 }
 
 .snackbar-success {
