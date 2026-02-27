@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import UserService from '../core/services/UserService';
 import Snackbar from '../components/Snackbar';
 import { useNavigate } from 'react-router-dom';
+import { getNotificationMessage } from '../pages/Notifications';
 
 const NotificationContext = createContext();
 
@@ -96,7 +97,7 @@ export const NotificationProvider = ({ children }) => {
             {children}
             <Snackbar
                 isVisible={showSnackbar}
-                message={recentNotification?.content || ''}
+                message={recentNotification ? getNotificationMessage(recentNotification) : ''}
                 type="info"
                 onClose={() => setShowSnackbar(false)}
                 action={{
