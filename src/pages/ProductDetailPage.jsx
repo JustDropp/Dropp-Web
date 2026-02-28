@@ -458,36 +458,6 @@ const ProductDetailPage = () => {
                                 </div>
                             </div>
 
-                            {/* ROW 2 — More Collections from Creator */}
-                            {creator && (
-                                <div className="pdp-more-section">
-                                    <div className="pdp-more-header">
-                                        <Grid3X3 size={17} />
-                                        <h2 className="pdp-more-title">
-                                            More from{' '}
-                                            <span className="pdp-more-accent">{creatorName}</span>
-                                        </h2>
-                                    </div>
-
-                                    {creatorCollections.length > 0 ? (
-                                        <div className="pdp-collections-scroll">
-                                            {creatorCollections.map((col) => (
-                                                <div key={col._id || col.id} className="pdp-col-wrap">
-                                                    <CollectionCard
-                                                        collection={col}
-                                                        isOwner={false}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="pdp-no-collections">
-                                            <Layers size={28} strokeWidth={1.5} />
-                                            <p>No public collections yet</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
                         </div>
 
                         {/* ── RIGHT COLUMN — Creator Panel ── */}
@@ -616,6 +586,37 @@ const ProductDetailPage = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* ── FULL-WIDTH — More Collections from Creator ── */}
+                    {creator && (
+                        <div className="pdp-more-section">
+                            <div className="pdp-more-header">
+                                <Grid3X3 size={17} />
+                                <h2 className="pdp-more-title">
+                                    More from{' '}
+                                    <span className="pdp-more-accent">{creatorName}</span>
+                                </h2>
+                            </div>
+
+                            {creatorCollections.length > 0 ? (
+                                <div className="pdp-collections-scroll">
+                                    {creatorCollections.map((col) => (
+                                        <div key={col._id || col.id} className="pdp-col-wrap">
+                                            <CollectionCard
+                                                collection={col}
+                                                isOwner={false}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="pdp-no-collections">
+                                    <Layers size={28} strokeWidth={1.5} />
+                                    <p>No public collections yet</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </motion.div>
 

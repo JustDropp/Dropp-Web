@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Share2, MoreHorizontal, Edit, Trash2, Link2, Copy, Check, Heart } from 'lucide-react';
+import { Share2, MoreHorizontal, Edit, Trash2, Link2, Copy, Check, Heart, Lock } from 'lucide-react';
 import { API_CONFIG } from '../core/config/apiConfig';
 import PLACEHOLDER_IMAGE from '../utils/placeholder';
 import '../styles/Profile.css';
@@ -140,6 +140,12 @@ const CollectionCard = ({
                         />
                     </div>
                 </div>
+
+                {collection.isPrivate && (
+                    <div className="card-privacy-badge">
+                        <Lock size={11} /> Private
+                    </div>
+                )}
 
                 {/* Hover Actions */}
                 <div className="board-actions">

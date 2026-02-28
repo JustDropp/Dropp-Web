@@ -16,6 +16,8 @@ export const API_CONFIG = {
         FOLLOW_USER: '/user/follow',
         FOLLOWERS: '/user/followers',
         FOLLOWING: '/user/following',
+        MY_COLLECTIONS: '/c/getMyCollection',
+        UPDATE_COLLECTION_VISIBILITY: '/c/updateVisibility',
         NOTIFICATIONS: '/user/notification',
         MARK_NOTIFICATION_READ: '/user/notification/markRead',
         MARK_ALL_NOTIFICATIONS_READ: '/user/notification/markRead/all',

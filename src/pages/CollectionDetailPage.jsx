@@ -16,7 +16,9 @@ import {
     Calendar,
     Flag,
     UserX,
-    Check
+    Check,
+    Lock,
+    Globe
 } from 'lucide-react';
 import CollectionService from '../core/services/CollectionService';
 import UserService from '../core/services/UserService';
@@ -53,6 +55,7 @@ const CollectionDetailPage = () => {
     const [creatorCollectionsCount, setCreatorCollectionsCount] = useState(0);
     const [followModal, setFollowModal] = useState({ isOpen: false, type: 'followers' });
     const [copied, setCopied] = useState(false);
+    const [visibilityLoading, setVisibilityLoading] = useState(false);
 
     const optionsRef = useRef(null);
 
@@ -243,6 +246,26 @@ const CollectionDetailPage = () => {
         }
     };
 
+    const handleVisibilityToggle = async () => {
+        if (!isOwner || visibilityLoading) return;
+        const newIsPrivate = !collection.isPrivate;
+        setCollection(prev => ({ ...prev, isPrivate: newIsPrivate }));
+        setVisibilityLoading(true);
+        try {
+            await CollectionService.updateCollectionVisibility(id, newIsPrivate);
+            setSnackbar({
+                show: true,
+                message: newIsPrivate ? 'Collection is now private' : 'Collection is now public',
+                type: 'success'
+            });
+        } catch (error) {
+            setCollection(prev => ({ ...prev, isPrivate: !newIsPrivate }));
+            setSnackbar({ show: true, message: 'Failed to update visibility', type: 'error' });
+        } finally {
+            setVisibilityLoading(false);
+        }
+    };
+
     const handleReport = () => {
         setShowOptions(false);
         setSnackbar({ show: true, message: 'Report submitted. Thanks for keeping Dropp safe.', type: 'info' });
@@ -395,7 +418,14 @@ const CollectionDetailPage = () => {
                         <div className="collection-right">
                             {/* REFINED COLLECTION INFO CARD */}
                             <div className="collection-info-card">
-                                <h1 className="collection-title-side">{collectionName}</h1>
+                                <div className="collection-title-row">
+                                    <h1 className="collection-title-side">{collectionName}</h1>
+                                    {collection.isPrivate && (
+                                        <span className="collection-private-badge">
+                                            <Lock size={13} /> Private
+                                        </span>
+                                    )}
+                                </div>
                                 {collection.desc && (
                                     <p className="collection-desc-side">{collection.desc}</p>
                                 )}
@@ -454,7 +484,34 @@ const CollectionDetailPage = () => {
                                 </div>
 
                                 {isOwner && (
-                                    <button 
+                                    <div className="privacy-toggle-row" style={{ marginTop: '0.5rem' }}>
+                                        <div className="privacy-toggle-info">
+                                            {collection.isPrivate ? <Lock size={15} /> : <Globe size={15} />}
+                                            <div>
+                                                <span className="privacy-toggle-title">
+                                                    {collection.isPrivate ? 'Private' : 'Public'}
+                                                </span>
+                                                <span className="privacy-toggle-desc">
+                                                    {collection.isPrivate
+                                                        ? 'Only you can see this'
+                                                        : 'Visible to everyone'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <label className="toggle-switch" aria-label="Toggle privacy">
+                                            <input
+                                                type="checkbox"
+                                                checked={collection.isPrivate}
+                                                onChange={handleVisibilityToggle}
+                                                disabled={visibilityLoading}
+                                            />
+                                            <span className="toggle-slider" />
+                                        </label>
+                                    </div>
+                                )}
+
+                                {isOwner && (
+                                    <button
                                         className="pdp-action-btn pdp-visit-btn full-width"
                                         onClick={handleAddProducts}
                                         style={{ marginTop: '0.75rem' }}
@@ -594,6 +651,7 @@ const CollectionDetailPage = () => {
                         isOpen={isAddProductModalOpen}
                         onClose={() => setIsAddProductModalOpen(false)}
                         collectionId={id}
+                        isCollectionPrivate={collection?.isPrivate ?? false}
                         onProductAdded={handleProductAdded}
                     />
                 )}

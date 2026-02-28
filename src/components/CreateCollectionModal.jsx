@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, Lock, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CollectionService from '../core/services/CollectionService';
 import { useData } from '../contexts/DataContext';
@@ -10,6 +10,7 @@ import '../styles/CreateCollectionModal.css';
 const CreateCollectionModal = ({ isOpen, onClose }) => {
     const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'success' });
     const navigate = useNavigate();
@@ -30,44 +31,37 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
 
         setLoading(true);
         try {
-            const response = await CollectionService.createCollection(title, desc);
-            setSnackbar({ show: true, message: 'Collection created successfully!', type: 'success' });
+            const response = await CollectionService.createCollection(title, desc, isPrivate);
 
-            // Extract collection data from response
-            const newCollection = response?.result || response;
-            const collectionId = newCollection?._id || newCollection?.id;
+            // Try every possible shape the API might return the new collection in
+            const newCollection =
+                response?.result ||
+                response?.collection ||
+                response?.data ||
+                response;
 
-            // Add to global state immediately for real-time update
-            if (newCollection) {
+            const collectionId =
+                newCollection?._id ||
+                newCollection?.id ||
+                response?._id ||
+                response?.id;
+
+            if (newCollection && typeof newCollection === 'object') {
                 addCollection(newCollection);
             }
 
-            // Reset form
-            setTitle('');
-            setDesc('');
+            // Navigate first, then close + refresh so nothing races
+            onClose();
+            fetchCollections();
+            navigate(`/c/${collectionId}`);
 
-            // Close modal and navigate
-            setTimeout(() => {
-                onClose();
-                // Also refresh to ensure backend sync
-                fetchCollections();
-                if (collectionId) {
-                    navigate(`/c/${collectionId}`);
-                } else {
-                    navigate('/profile/me');
-                }
-            }, 800);
         } catch (error) {
             console.error('Failed to create collection:', error);
             const errorMessage = error.response?.data?.message
                 || error.response?.data?.error
                 || error.message
                 || 'Failed to create collection. Please try again.';
-            setSnackbar({
-                show: true,
-                message: errorMessage,
-                type: 'error'
-            });
+            setSnackbar({ show: true, message: errorMessage, type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -77,6 +71,7 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
         if (!loading) {
             setTitle('');
             setDesc('');
+            setIsPrivate(false);
             onClose();
         }
     };
@@ -137,6 +132,27 @@ const CreateCollectionModal = ({ isOpen, onClose }) => {
                                 rows={4}
                                 maxLength={500}
                             />
+                        </div>
+
+                        <div className="privacy-toggle-row">
+                            <div className="privacy-toggle-info">
+                                {isPrivate ? <Lock size={15} /> : <Globe size={15} />}
+                                <div>
+                                    <span className="privacy-toggle-title">{isPrivate ? 'Private' : 'Public'}</span>
+                                    <span className="privacy-toggle-desc">
+                                        {isPrivate ? 'Only you can see this collection' : 'Anyone on Dropp can see this'}
+                                    </span>
+                                </div>
+                            </div>
+                            <label className="toggle-switch" aria-label="Toggle privacy">
+                                <input
+                                    type="checkbox"
+                                    checked={isPrivate}
+                                    onChange={(e) => setIsPrivate(e.target.checked)}
+                                    disabled={loading}
+                                />
+                                <span className="toggle-slider" />
+                            </label>
                         </div>
 
                         <div className="modal-actions">

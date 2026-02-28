@@ -315,12 +315,13 @@
 .pdp-link-card a:hover { opacity: 0.75; text-decoration: underline; }
 
 /* ================================================================
-   ROW 2 — More Collections from Creator
+   FULL-WIDTH — More Collections from Creator
    ================================================================ */
 .pdp-more-section {
     display: flex;
     flex-direction: column;
     gap: 1.125rem;
+    margin-top: 2.5rem;
 }
 
 .pdp-more-header {
@@ -349,13 +350,16 @@
     background-clip: text;
 }
 
-/* Horizontal scrolling collection strip.
-   padding-top gives clearance for the pinterest-board
-   translateY(-2px) hover so the card isn't clipped. */
+/* Horizontal scrolling collection strip — bleeds to container edges */
 .pdp-collections-scroll {
     display: flex;
     gap: 1rem;
     overflow-x: auto;
+    /* Bleed past pdp-container's 2rem padding so cards reach the viewport edges */
+    margin-left: -2rem;
+    margin-right: -2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     padding: 4px 2px 16px;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
@@ -859,6 +863,7 @@
 @media (max-width: 640px) {
     .pdp-container { padding: 0 1rem; }
     .pdp-page { padding: 1.5rem 0 3rem; }
+    .pdp-collections-scroll { margin-left: -1rem; margin-right: -1rem; padding-left: 1rem; padding-right: 1rem; }
     .pdp-product-info { padding: 1.25rem 1.25rem 1.5rem; }
     .pdp-product-title { font-size: 1.5rem; }
     .pdp-product-desc { font-size: 0.9375rem; }

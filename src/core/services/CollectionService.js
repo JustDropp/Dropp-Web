@@ -66,7 +66,7 @@ class CollectionService {
      * @param {string} desc - Collection description
      * @returns {Promise<Object>}
      */
-    async createCollection(title, desc) {
+    async createCollection(title, desc, isPrivate = false) {
         try {
             if (!title || !title.trim()) {
                 throw new Error('Collection title is required');
@@ -74,12 +74,32 @@ class CollectionService {
 
             const response = await CollectionRepository.createCollection({
                 title: title.trim(),
-                desc: desc?.trim() || ''
+                desc: desc?.trim() || '',
+                isPrivate
             });
 
             return response;
         } catch (error) {
             console.error('CollectionService.createCollection error:', error);
+            throw error;
+        }
+    }
+
+    async getMyCollections() {
+        try {
+            const response = await CollectionRepository.getMyCollections();
+            return response.result || [];
+        } catch (error) {
+            console.error('CollectionService.getMyCollections error:', error);
+            throw error;
+        }
+    }
+
+    async updateCollectionVisibility(id, isPrivate) {
+        try {
+            return await CollectionRepository.updateCollectionVisibility(id, isPrivate);
+        } catch (error) {
+            console.error('CollectionService.updateCollectionVisibility error:', error);
             throw error;
         }
     }

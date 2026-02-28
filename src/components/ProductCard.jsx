@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, MoreHorizontal, Trash2, Link2, Copy, Check, Heart, Edit2 } from 'lucide-react';
+import { Share2, MoreHorizontal, Trash2, Link2, Copy, Check, Heart, Edit2, Lock } from 'lucide-react';
 import AddProductModal from './AddProductModal';
 import { API_CONFIG } from '../core/config/apiConfig';
 import PLACEHOLDER_IMAGE from '../utils/placeholder';
@@ -150,6 +150,12 @@ const ProductCard = ({ product, onDelete }) => {
                             onError={(e) => { e.target.src = PLACEHOLDER_IMAGE; }}
                         />
                     </div>
+
+                    {product.isPrivate && (
+                        <div className="card-privacy-badge">
+                            <Lock size={11} /> Private
+                        </div>
+                    )}
 
                     {/* Hover Actions */}
                     <div className="board-actions">

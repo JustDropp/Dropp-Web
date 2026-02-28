@@ -7,7 +7,7 @@ import { compressImage, isWithinSizeLimit, getTotalSizeMB } from '../utils/media
 import Snackbar from './Snackbar';
 import '../styles/CreateCollectionModal.css';
 
-const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded, productToEdit = null }) => {
+const AddProductModal = ({ isOpen, onClose, collectionId, isCollectionPrivate = false, onProductAdded, productToEdit = null }) => {
     const isEditMode = !!productToEdit;
     const [name, setName] = useState('');
     const [links, setLinks] = useState(['']);
@@ -288,6 +288,7 @@ const AddProductModal = ({ isOpen, onClose, collectionId, onProductAdded, produc
                 createFormData.append('name', name.trim());
                 createFormData.append('link', validLinks.join(','));
                 createFormData.append('desc', description.trim());
+                createFormData.append('isCollectionPrivate', String(isCollectionPrivate));
                 
                 // Append all media files to the creation request
                 processedFiles.forEach(file => {

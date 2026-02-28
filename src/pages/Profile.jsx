@@ -62,10 +62,13 @@ const Profile = () => {
 
                 setUser(profileData);
 
-                // Fetch collections using the specific endpoint
+                // Fetch collections — own profile gets all (public + private), others only public
                 if (profileData._id || profileData.id) {
-                    const userId = profileData._id || profileData.id;
-                    const collectionsData = await CollectionService.getUserCollections(userId);
+                    const isOwn = username === 'me' || !username ||
+                        (currentUser && (currentUser._id === profileData._id || currentUser.id === profileData.id));
+                    const collectionsData = isOwn
+                        ? await CollectionService.getMyCollections()
+                        : await CollectionService.getUserCollections(profileData._id || profileData.id);
                     setProfileCollections(collectionsData);
                 }
             } catch (err) {
@@ -107,14 +110,14 @@ const Profile = () => {
 
     // Refresh collections helper
     const refreshCollections = async () => {
-        if (user && (user._id || user.id)) {
-            const userId = user._id || user.id;
-            try {
-                const collectionsData = await CollectionService.getUserCollections(userId);
-                setProfileCollections(collectionsData);
-            } catch (err) {
-                console.error("Failed to refresh collections:", err);
-            }
+        if (!user) return;
+        try {
+            const collectionsData = isOwnProfile
+                ? await CollectionService.getMyCollections()
+                : await CollectionService.getUserCollections(user._id || user.id);
+            setProfileCollections(collectionsData);
+        } catch (err) {
+            console.error("Failed to refresh collections:", err);
         }
     };
 

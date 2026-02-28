@@ -53,8 +53,19 @@ class CollectionRepository {
     async createCollection(data) {
         const response = await apiClient.post(API_CONFIG.ENDPOINTS.COLLECTIONS, {
             title: data.title,
-            desc: data.desc
+            desc: data.desc,
+            isCollectionPrivate: Boolean(data.isPrivate)
         });
+        return response.data;
+    }
+
+    async getMyCollections() {
+        const response = await apiClient.get(API_CONFIG.ENDPOINTS.MY_COLLECTIONS);
+        return response.data;
+    }
+
+    async updateCollectionVisibility(id, isPrivate) {
+        const response = await apiClient.patch(`${API_CONFIG.ENDPOINTS.UPDATE_COLLECTION_VISIBILITY}/${id}`, { isPrivate });
         return response.data;
     }
 

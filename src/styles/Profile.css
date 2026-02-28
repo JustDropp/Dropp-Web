@@ -1155,3 +1155,22 @@
         aspect-ratio: 1.4;
     }
 }
+/* ─── Card Privacy Badge ─────────────────────────────────────────────────────── */
+.card-privacy-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 7px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    z-index: 3;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: none;
+}
