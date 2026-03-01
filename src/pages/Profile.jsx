@@ -27,6 +27,7 @@ const Profile = () => {
 
     // Local state for collections to use the specific endpoint
     const [profileCollections, setProfileCollections] = useState([]);
+    const [sharedCollections, setSharedCollections] = useState([]);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -66,10 +67,14 @@ const Profile = () => {
                 if (profileData._id || profileData.id) {
                     const isOwn = username === 'me' || !username ||
                         (currentUser && (currentUser._id === profileData._id || currentUser.id === profileData.id));
-                    const collectionsData = isOwn
-                        ? await CollectionService.getMyCollections()
-                        : await CollectionService.getUserCollections(profileData._id || profileData.id);
-                    setProfileCollections(collectionsData);
+                    if (isOwn) {
+                        const { result, sharedCollections } = await CollectionService.getMyCollections();
+                        setProfileCollections(result);
+                        setSharedCollections(sharedCollections);
+                    } else {
+                        const collectionsData = await CollectionService.getUserCollections(profileData._id || profileData.id);
+                        setProfileCollections(collectionsData);
+                    }
                 }
             } catch (err) {
                 console.error("Failed to fetch profile data:", err);
@@ -112,10 +117,14 @@ const Profile = () => {
     const refreshCollections = async () => {
         if (!user) return;
         try {
-            const collectionsData = isOwnProfile
-                ? await CollectionService.getMyCollections()
-                : await CollectionService.getUserCollections(user._id || user.id);
-            setProfileCollections(collectionsData);
+            if (isOwnProfile) {
+                const { result, sharedCollections } = await CollectionService.getMyCollections();
+                setProfileCollections(result);
+                setSharedCollections(sharedCollections);
+            } else {
+                const collectionsData = await CollectionService.getUserCollections(user._id || user.id);
+                setProfileCollections(collectionsData);
+            }
         } catch (err) {
             console.error("Failed to refresh collections:", err);
         }
@@ -173,8 +182,10 @@ const Profile = () => {
 
                 <ProfileTabs
                     collections={profileCollections}
+                    sharedCollections={sharedCollections}
                     activeTab="collections"
                     onRefresh={refreshCollections}
+                    isOwner={isOwnProfile}
                     onUpdateCollection={handleCollectionUpdate}
                 />
 

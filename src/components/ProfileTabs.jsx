@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Film, Tag, Bookmark } from 'lucide-react';
+import { Grid, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_CONFIG } from '../core/config/apiConfig';
 import PLACEHOLDER_IMAGE from '../utils/placeholder';
@@ -10,7 +10,7 @@ import EditCollectionModal from './EditCollectionModal';
 import Snackbar from './Snackbar';
 import '../styles/Profile.css';
 
-const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRefresh, isOwner = true, onUpdateCollection }) => {
+const ProfileTabs = ({ collections, sharedCollections = [], activeTab: initialTab = 'collections', onRefresh, isOwner = true, onUpdateCollection }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [sharePopupId, setSharePopupId] = useState(null);
@@ -22,9 +22,7 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRef
 
     const tabs = [
         { id: 'collections', label: 'Collections', icon: Grid },
-        { id: 'reels', label: 'Reels', icon: Film },
-        { id: 'tagged', label: 'Tagged', icon: Tag },
-        { id: 'saved', label: 'Saved', icon: Bookmark }
+        ...(isOwner ? [{ id: 'shared', label: 'Shared', icon: Users }] : [])
     ];
 
     // Close popups when clicking outside
@@ -164,27 +162,24 @@ const ProfileTabs = ({ collections, activeTab: initialTab = 'collections', onRef
                     </div>
                 );
 
-            case 'reels':
+            case 'shared':
                 return (
-                    <div className="profile-empty-state">
-                        <Film size={48} />
-                        <p>No reels yet</p>
-                    </div>
-                );
-
-            case 'tagged':
-                return (
-                    <div className="profile-empty-state">
-                        <Tag size={48} />
-                        <p>No tagged collections</p>
-                    </div>
-                );
-
-            case 'saved':
-                return (
-                    <div className="profile-empty-state">
-                        <Bookmark size={48} />
-                        <p>No saved collections</p>
+                    <div className="pinterest-grid">
+                        {sharedCollections && sharedCollections.length > 0 ? (
+                            sharedCollections.map((collection) => (
+                                <CollectionCard
+                                    key={collection._id || collection.id}
+                                    collection={collection}
+                                    isOwner={false}
+                                />
+                            ))
+                        ) : (
+                            <div className="profile-empty-state">
+                                <Users size={48} />
+                                <p>No shared collections</p>
+                                <span style={{ display: 'block', marginTop: '0.5rem' }}>Collections shared with you will appear here</span>
+                            </div>
+                        )}
                     </div>
                 );
 

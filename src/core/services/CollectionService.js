@@ -88,7 +88,10 @@ class CollectionService {
     async getMyCollections() {
         try {
             const response = await CollectionRepository.getMyCollections();
-            return response.result || [];
+            return {
+                result: response.result || [],
+                sharedCollections: response.sharedCollections || []
+            };
         } catch (error) {
             console.error('CollectionService.getMyCollections error:', error);
             throw error;
