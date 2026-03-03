@@ -7,6 +7,7 @@ export const API_CONFIG = {
         SIGNUP: '/user/signup',
         PROFILE: '/user/profile/',
         VERIFY_EMAIL: '/user/verify-email',
+        VERIFY_TOKEN: '/user/verify-token',
         UPDATE_PASSWORD: '/user/update-password',
         DELETE_ACCOUNT: '/user/delete',
         COLLECTIONS: '/c',

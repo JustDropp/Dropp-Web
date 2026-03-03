@@ -58,6 +58,19 @@ class UserService {
     }
 
     /**
+     * Verify token from email link
+     * @param {string} token
+     * @returns {Promise<any>}
+     */
+    async verifyToken(token) {
+        try {
+            return await UserRepository.verifyToken(token);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Delete user account
      * @returns {Promise<any>}
      */

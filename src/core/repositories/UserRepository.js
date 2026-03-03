@@ -68,6 +68,20 @@ class UserRepository {
     }
 
     /**
+     * Verify token from email link
+     * @param {string} token
+     * @returns {Promise<any>}
+     */
+    async verifyToken(token) {
+        try {
+            const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.VERIFY_TOKEN}/${token}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Delete user account
      * @returns {Promise<any>}
      */

@@ -1,0 +1,255 @@
+/* VerifyEmail — fully standalone page, zero dependency on app layout */
+
+/* ─── Root / Background ─────────────────────────────────────────────────── */
+.ve-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #06091a;
+    overflow: hidden;
+    font-family: 'Instrument Sans', 'Inter', -apple-system, sans-serif;
+    padding: 1.5rem;
+    gap: 2rem;
+}
+
+/* Ambient glow orbs */
+.ve-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ve-orb-1 {
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(13, 54, 199, 0.35) 0%, transparent 70%);
+    top: -120px;
+    right: -80px;
+}
+
+.ve-orb-2 {
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(87, 160, 255, 0.2) 0%, transparent 70%);
+    bottom: -100px;
+    left: -60px;
+}
+
+/* ─── Logo ───────────────────────────────────────────────────────────────── */
+.ve-logo {
+    position: relative;
+    z-index: 1;
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.05em;
+    text-decoration: none;
+    background: linear-gradient(135deg, #3887F8, #57A0FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.ve-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.03),
+        0 32px 64px rgba(0, 0, 0, 0.5),
+        0 0 80px rgba(56, 135, 248, 0.08);
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ─── State containers ───────────────────────────────────────────────────── */
+.ve-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.625rem;
+    width: 100%;
+}
+
+/* ─── Icons ──────────────────────────────────────────────────────────────── */
+.ve-icon-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.ve-icon-loading {
+    color: #3887F8;
+    background: rgba(56, 135, 248, 0.1);
+}
+
+.ve-icon-success {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+}
+
+.ve-icon-error {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+/* SVG sizing */
+.ve-check-svg,
+.ve-error-svg,
+.ve-spinner-svg {
+    width: 40px;
+    height: 40px;
+}
+
+/* Spinner animation */
+.ve-spinner-arc {
+    transform-origin: center;
+    animation: ve-spin 0.9s linear infinite;
+}
+
+@keyframes ve-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success checkmark circle fill */
+.ve-check-circle {
+    fill: rgba(52, 211, 153, 0.08);
+}
+
+/* ─── Text ───────────────────────────────────────────────────────────────── */
+.ve-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.ve-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 300px;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.ve-actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ve-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.5rem;
+    background: linear-gradient(135deg, #0D36C7, #3887F8, #57A0FF);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: -0.01em;
+}
+
+.ve-btn-primary:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.ve-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+    letter-spacing: -0.01em;
+}
+
+.ve-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+}
+
+/* ─── Footer note ────────────────────────────────────────────────────────── */
+.ve-footer-note {
+    position: relative;
+    z-index: 1;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.25);
+    margin: 0;
+}
+
+.ve-footer-note a {
+    color: rgba(56, 135, 248, 0.7);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.ve-footer-note a:hover {
+    color: #3887F8;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .ve-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+    }
+
+    .ve-title {
+        font-size: 1.375rem;
+    }
+
+    .ve-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .ve-btn-primary,
+    .ve-btn-ghost {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ve-orb-1 { width: 280px; height: 280px; }
+    .ve-orb-2 { width: 220px; height: 220px; }
+}
