@@ -26,6 +26,16 @@
     <link rel="stylesheet" crossorigin href="/assets/index-CL5nWJPW.css">
   </head>
   <body>
+    <script>
+      // Restore full URL encoded by 404.html (GitHub Pages SPA routing fix)
+      (function () {
+        var qs = window.location.search;
+        if (qs.indexOf('?p=') === 0) {
+          var decoded = decodeURIComponent(qs.slice(3));
+          window.history.replaceState(null, null, decoded);
+        }
+      })();
+    </script>
     <div id="root"></div>
   </body>
 </html>
