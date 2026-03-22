@@ -15,8 +15,17 @@ import { categories } from '../data/mockData';
 import '../styles/Home.css';
 import '../styles/Profile.css';
 
+/** Same resolution as profile / edit modal — API path or absolute URL */
+function resolveProfileImageSrc(profileImageUrl) {
+    if (!profileImageUrl || typeof profileImageUrl !== 'string') return null;
+    const url = profileImageUrl.trim();
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return API_CONFIG.BASE_URL + url;
+}
+
 const Home = () => {
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { unreadCount } = useNotifications();
     const [activeCategory, setActiveCategory] = useState('All');
     const [products, setProducts] = useState([]);
@@ -27,15 +36,36 @@ const Home = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [analytics, setAnalytics] = useState(null);
     const [analyticsLoading, setAnalyticsLoading] = useState(true);
+    /** Fresh profile from API so avatar matches /profile (JWT often omits or stale-dates image) */
+    const [me, setMe] = useState(null);
 
-    const firstName = user?.fullName?.split(' ')[0] || user?.username || 'Creator';
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setMe(null);
+            return;
+        }
+        let cancelled = false;
+        (async () => {
+            try {
+                const profile = await UserService.getUserProfile();
+                if (!cancelled) setMe(profile);
+            } catch {
+                if (!cancelled) setMe(null);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [isAuthenticated]);
 
-    const avatarUrl = (() => {
-        const url = user?.profileImageUrl;
-        if (!url) return null;
-        if (url.startsWith('http')) return url;
-        return API_CONFIG.BASE_URL + url;
-    })();
+    const firstName =
+        me?.fullName?.split(' ')?.[0]
+        || user?.fullName?.split(' ')?.[0]
+        || me?.username
+        || user?.username
+        || 'Creator';
+
+    const avatarUrl = resolveProfileImageSrc(
+        me?.profileImageUrl ?? user?.profileImageUrl,
+    );
 
     useEffect(() => {
         if (!isSearching) fetchProducts();
